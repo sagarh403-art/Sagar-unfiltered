@@ -1,119 +1,97 @@
-// --- PART 1: YOUR DATA (EDIT THIS TO ADD BLOGS/PHOTOS) ---
-// Note: Put your images in an 'assets' folder locally!
-// For now, I am using placeholder URLs so you can see it working immediately.
-
+// --- 1. YOUR DATA ---
+// Update the 'image' paths to match your assets folder!
 const portfolioData = [
     {
         type: "BLOG",
         title: "The Chrono Debt",
         description: "A sci-fi exploration of time currency and the human cost of eternal life.",
-        image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=800&q=80" // Replace with "assets/my-story.jpg"
+        image: "assets/blog1.jpg" // CHANGE THIS to your local file name
     },
     {
         type: "PHOTOGRAPHY",
         title: "Neon Nights",
         description: "Captured at 3AM in the heart of Bengaluru. Sony A7III, 35mm.",
-        image: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" // Replace with "assets/photo1.jpg"
+        image: "assets/photo1.jpg" // CHANGE THIS
     },
     {
         type: "BLOG",
         title: "Minimalism in WebGL",
         description: "How to create high-performance 3D websites without sacrificing aesthetics.",
-        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80"
+        image: "assets/blog2.jpg" // CHANGE THIS
     },
     {
         type: "PHOTOGRAPHY",
         title: "Urban Decay",
         description: "The contrast between nature and concrete structures.",
-        image: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=800&q=80"
+        image: "assets/photo2.jpg" // CHANGE THIS
     }
 ];
 
-// --- PART 2: GENERATE CONTENT (ZIG-ZAG LAYOUT) ---
+// --- 2. DETECT PAGE & RENDER ---
+const path = window.location.pathname;
 const feedContainer = document.getElementById('content-feed');
 
-portfolioData.forEach(item => {
-    // Create the HTML for each item
-    const article = document.createElement('article');
-    article.className = 'content-item';
-    
-    article.innerHTML = `
-        <div class="content-text">
-            <span class="category-tag">${item.type}</span>
-            <h2 class="item-title">${item.title}</h2>
-            <p class="item-desc">${item.description}</p>
-        </div>
-        <div class="content-visual">
-            <img src="${item.image}" alt="${item.title}" class="content-img">
-        </div>
-    `;
-    
-    feedContainer.appendChild(article);
-});
+if (feedContainer) {
+    // Filter data based on page name
+    let pageType = "";
+    if (path.includes("blogs.html")) pageType = "BLOG";
+    if (path.includes("photography.html")) pageType = "PHOTOGRAPHY";
 
-// --- PART 3: ANIMATE ON SCROLL (GSAP) ---
-gsap.registerPlugin(ScrollTrigger);
-
-gsap.utils.toArray('.content-item').forEach(item => {
-    gsap.to(item, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-            trigger: item,
-            start: "top 80%", // Animation starts when item is 80% down the screen
-            toggleActions: "play none none reverse"
-        }
+    // Generate HTML
+    const itemsToShow = portfolioData.filter(item => item.type === pageType);
+    
+    itemsToShow.forEach(item => {
+        const article = document.createElement('article');
+        article.className = 'content-item';
+        article.innerHTML = `
+            <div class="content-text">
+                <span class="category-tag">${item.type}</span>
+                <h2 class="item-title">${item.title}</h2>
+                <p class="item-desc">${item.description}</p>
+            </div>
+            <div class="content-visual">
+                <img src="${item.image}" alt="${item.title}" class="content-img">
+            </div>
+        `;
+        feedContainer.appendChild(article);
     });
-});
 
-// --- PART 4: THE 3D "FACE" MODEL ---
-// Since we don't have your .glb file, we use a "Wireframe Head" aesthetic
-// which looks very Lando Norris / Iron Man HUD style.
+    // Animate the items (GSAP)
+    if(typeof gsap !== 'undefined') {
+        gsap.utils.toArray('.content-item').forEach(item => {
+            gsap.to(item, {
+                opacity: 1, y: 0, duration: 1, ease: "power3.out",
+                scrollTrigger: { trigger: item, start: "top 80%" }
+            });
+        });
+    }
+}
 
+// --- 3. THE 3D BACKGROUND (Shared across all pages) ---
+// This renders the "Wireframe Head"
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('canvas-container').appendChild(renderer.domElement);
+const canvasContainer = document.getElementById('canvas-container');
+if(canvasContainer) canvasContainer.appendChild(renderer.domElement);
 
-// Create a complex shape to represent the "Head"
-const geometry = new THREE.IcosahedronGeometry(2, 4); // High detail sphere
+// The Geometry (Head Placeholder)
+const geometry = new THREE.IcosahedronGeometry(2, 2);
 const material = new THREE.MeshNormalMaterial({ wireframe: true });
-const headShape = new THREE.Mesh(geometry, material);
+const shape = new THREE.Mesh(geometry, material);
+scene.add(shape);
 
-scene.add(headShape);
 camera.position.z = 5;
 
-// MOUSE INTERACTION (The "Wrapping" Effect)
-let mouseX = 0;
-let mouseY = 0;
-
-document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-});
-
+// Animation Loop
 function animate() {
     requestAnimationFrame(animate);
-
-    // Rotate slowly
-    headShape.rotation.y += 0.003;
-    headShape.rotation.x += 0.001;
-
-    // "Look" at the mouse (The Lando Effect)
-    headShape.rotation.x += mouseY * 0.05;
-    headShape.rotation.y += mouseX * 0.05;
-
-    // Pulse Effect (Breathing)
-    const time = Date.now() * 0.001;
-    headShape.scale.setScalar(1 + Math.sin(time) * 0.05);
-
+    shape.rotation.y += 0.002;
+    shape.rotation.x += 0.001;
     renderer.render(scene, camera);
 }
-
 animate();
 
 // Handle Resize
