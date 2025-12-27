@@ -188,5 +188,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2 class="item-title">${item.title}</h2>
                         <p>${item.desc}</p>
                     </div>
-                    <div class
-                    
+                    <div class="content-visual"><img src="${item.img}"></div>
+                </article>`;
+        });
+        document.querySelector('.scroll-container')?.appendChild(contentDiv);
+
+        setTimeout(() => {
+            if(typeof gsap !== 'undefined') {
+                gsap.utils.toArray('.content-item').forEach(item => {
+                    gsap.to(item, { opacity: 1, duration: 1, scrollTrigger: { trigger: item, start: "top 85%" } });
+                });
+            }
+        }, 100);
+    }
+});
