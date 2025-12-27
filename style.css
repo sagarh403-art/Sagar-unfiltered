@@ -1,4 +1,3 @@
-/* ... (Keep your existing fonts and root variables) ... */
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;600;700&display=swap');
 
 :root {
@@ -16,82 +15,67 @@ body {
 
 #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; background: radial-gradient(circle at center, #302b63, #0f0c29); }
 
-/* --- FIXED LOGO STYLES --- */
+/* --- HERO LOGO --- */
 .hero-logo {
     position: fixed;
-    top: 50%; 
-    left: 50%;
-    transform: translate(-50%, -50%); /* Starts dead center */
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%); /* Start Centered */
     font-size: 15vw;
     font-weight: 700;
     margin: 0;
     color: white;
     text-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    z-index: 100; /* HIGH Z-INDEX TO ENSURE VISIBILITY */
-    pointer-events: none;
-    line-height: 1;
-    white-space: nowrap; /* Prevents wrapping */
-    transform-origin: center center;
+    z-index: 10; /* Above Canvas, Below Menu */
+    pointer-events: none; /* Let clicks pass through */
+    white-space: nowrap;
 }
 
-/* --- FIXED MENU BUTTON --- */
+/* --- MENU BUTTON (Highest Z-Index) --- */
 .menu-btn {
     position: fixed; top: 30px; right: 30px; 
     background: white; color: var(--bg-color);
     padding: 12px 25px; border-radius: 50px; border: none;
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1rem;
     cursor: pointer; 
-    z-index: 200; /* HIGHEST Z-INDEX */
+    z-index: 9999; /* MUST BE HIGHEST */
     box-shadow: 0 10px 20px rgba(0,0,0,0.2); transition: 0.3s;
 }
-.menu-btn:hover { transform: scale(1.1); }
+.menu-btn:hover { transform: scale(1.1); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
 
 /* MENU OVERLAY */
 .menu-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(36, 36, 62, 0.98);
-    z-index: 150; 
+    z-index: 9000; /* Below Button */
     display: flex; justify-content: center; align-items: center;
-    clip-path: circle(0% at 100% 0%); /* Hidden by default */
+    clip-path: circle(0% at 100% 0%); 
     transition: clip-path 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-    opacity: 0; /* Extra check to hide it */
-    pointer-events: none;
+    opacity: 0; pointer-events: none;
 }
 .menu-overlay.active { 
     clip-path: circle(150% at 100% 0%); 
-    opacity: 1;
-    pointer-events: all;
+    opacity: 1; pointer-events: all; 
 }
 
 .menu-links { display: flex; flex-direction: column; text-align: center; gap: 20px; }
 .menu-item { font-size: 3.5rem; font-weight: 700; color: white; text-decoration: none; transition: 0.3s; }
 .menu-item:hover { color: var(--accent-mint); transform: scale(1.05); }
 
-/* SECTIONS */
+/* SECTIONS & CARDS */
 .panel { height: 100vh; width: 100%; display: flex; justify-content: center; align-items: center; }
-
-/* SOFT CLAY CARD */
 .soft-card {
     background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
-    padding: 60px; border-radius: 50px;
-    border: 2px solid rgba(255,255,255,0.1);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    max-width: 600px; text-align: center;
+    padding: 60px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.1);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-width: 600px; text-align: center;
 }
 h2 { font-size: 3rem; margin-bottom: 20px; color: var(--accent-yellow); }
 p { font-size: 1.5rem; line-height: 1.6; color: #eee; font-weight: 300; }
 
-/* SOCIAL PILLS */
 .social-grid { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
-.social-pill {
-    width: 60px; height: 60px; border-radius: 50%; background: white;
-    display: flex; justify-content: center; align-items: center;
-    font-size: 1.5rem; color: var(--bg-color); transition: 0.3s;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+.social-pill { width: 60px; height: 60px; border-radius: 50%; background: white; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: var(--bg-color); transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 .social-pill:hover { transform: translateY(-5px) scale(1.1); color: white; }
 
-/* BLOG STYLES (Zig Zag) */
+/* BLOG STYLES */
 .nav-header { position: fixed; top: 0; left: 0; width: 100%; padding: 30px; z-index: 50; }
 .back-btn-round { padding: 10px 30px; border-radius: 50px; background: white; color: var(--bg-color); font-weight: 700; text-decoration: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 .feed-container { max-width: 1000px; margin: 150px auto; padding: 20px; }
