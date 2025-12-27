@@ -1,79 +1,146 @@
-/* IMPORT 8-BIT FONT */
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+/* IMPORT CLEAN FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;600;900&display=swap');
 
 :root {
-    --retro-green: #33ff00;
-    --paper-white: #e0e0e0;
-    --dark-bg: #050505;
+    --bg-color: #050505;
+    --text-color: #ffffff;
+    --accent-color: #D2FF00; /* Lando Yellow */
 }
 
 body {
     margin: 0;
-    background-color: var(--dark-bg);
-    color: var(--paper-white);
-    font-family: 'VT323', monospace; /* 8-bit style font */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
     overflow-x: hidden;
 }
 
-/* CRT SCANLINE OVERLAY (The "Old Screen" effect) */
-body::after {
-    content: " ";
-    display: block;
+/* 3D CANVAS */
+#canvas-container {
     position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    z-index: 100;
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none; /* Lets you click through it */
-}
-
-#webgl {
-    position: fixed;
-    top: 0;
-    left: 0;
+    width: 100%;
+    height: 100vh;
     z-index: -1;
-    filter: contrast(1.2) brightness(1.1); /* Makes the 3D look sharper/older */
+    opacity: 0.6; /* Slight fade so text pops */
 }
 
-/* TYPOGRAPHY */
-h1 { font-size: 6rem; text-transform: uppercase; margin: 0; text-shadow: 2px 2px 0px #000; letter-spacing: -2px; }
-h2 { font-size: 4rem; color: var(--retro-green); text-shadow: 2px 2px 0px #000; }
-p { font-size: 1.8rem; max-width: 600px; background: rgba(0,0,0,0.7); padding: 10px; border: 1px dashed var(--retro-green); }
-
-/* SECTIONS */
-.panel {
+/* HERO SECTION */
+.hero {
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 10%;
+    align-items: center;
+    text-align: center;
+    mix-blend-mode: difference; /* Cool effect over the 3D model */
 }
-.right { align-items: flex-end; text-align: right; }
-.center { align-items: center; text-align: center; }
 
-/* 8-BIT BUTTONS */
-.button-container { display: flex; gap: 2rem; margin-top: 2rem; }
+.hero-title {
+    font-size: 8vw;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    margin: 0;
+    line-height: 1;
+}
 
-.lando-btn {
-    padding: 1rem 2rem;
-    border: 2px solid var(--paper-white);
-    background: black;
-    color: var(--paper-white);
-    font-family: 'VT323', monospace;
+.dot { color: var(--accent-color); }
+
+.hero-subtitle {
     font-size: 1.5rem;
-    text-transform: uppercase;
-    text-decoration: none;
-    cursor: pointer;
-    transition: 0.1s;
-    box-shadow: 4px 4px 0px var(--retro-green); /* Hard shadow for 8-bit feel */
+    font-weight: 300;
+    margin-top: 1rem;
+    color: #888;
 }
 
-.lando-btn:hover {
-    transform: translate(2px, 2px); /* Button press effect */
-    box-shadow: 2px 2px 0px var(--retro-green);
-    background: var(--retro-green);
-    color: black;
+.scroll-indicator {
+    position: absolute;
+    bottom: 50px;
+    font-size: 0.8rem;
+    opacity: 0.5;
+    animation: bounce 2s infinite;
+}
+
+/* ZIG-ZAG CONTENT LAYOUT */
+.feed-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 20px;
+}
+
+.content-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 150px; /* Space between posts */
+    opacity: 0; /* Hidden initially for animation */
+    transform: translateY(50px);
+}
+
+.content-text { width: 40%; }
+.content-visual { width: 50%; }
+
+/* Typography for Content */
+.category-tag {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.item-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 10px 0;
+    line-height: 1.1;
+}
+
+.item-desc {
+    font-size: 1.1rem;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+.content-img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    filter: grayscale(100%);
+    transition: filter 0.5s ease;
+}
+
+.content-item:hover .content-img {
+    filter: grayscale(0%); /* Color returns on hover */
+}
+
+/* ALTERNATING SIDES (The Magic) */
+/* Even items: Text Left, Image Right */
+.content-item:nth-child(even) {
+    flex-direction: row; 
+}
+
+/* Odd items: Image Left, Text Right */
+.content-item:nth-child(odd) {
+    flex-direction: row-reverse;
+    text-align: right; 
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
+
+/* MOBILE FIXES */
+@media (max-width: 768px) {
+    .content-item, .content-item:nth-child(even), .content-item:nth-child(odd) {
+        flex-direction: column-reverse; /* Image on top, text bottom */
+        text-align: left;
+    }
+    .content-text, .content-visual { width: 100%; }
+    .content-visual { margin-bottom: 20px; }
+    .item-title { font-size: 2rem; }
 }
