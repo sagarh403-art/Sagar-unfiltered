@@ -1,66 +1,32 @@
 // --- 1. SETUP ---
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x24243e, 0.02); // Deep Indigo Fog
+scene.fog = new THREE.FogExp2(0x24243e, 0.02);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-camera.position.z = 12;
+camera.position.z = 15;
 camera.position.y = 0;
 
 // --- 2. SOFT STUDIO LIGHTING ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 
-// Warm light from left
 const dirLight1 = new THREE.DirectionalLight(0xff6b6b, 0.8);
 dirLight1.position.set(-10, 10, 10);
 scene.add(dirLight1);
 
-// Cool light from right
 const dirLight2 = new THREE.DirectionalLight(0x4ecdc4, 0.8);
 dirLight2.position.set(10, -10, 10);
 scene.add(dirLight2);
 
-// --- 3. ROUNDED 3D TEXT ("SAGAR") ---
-let textMesh;
-const fontLoader = new THREE.FontLoader();
-
-fontLoader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-    const textGeo = new THREE.TextGeometry('SAGAR', {
-        font: font,
-        size: 1.8, // SMALLER SIZE (As requested)
-        height: 0.5, 
-        curveSegments: 20, // Smoother curves
-        bevelEnabled: true,
-        bevelThickness: 0.3, // Very thick bevel (Balloon look)
-        bevelSize: 0.1,
-        bevelSegments: 10 // Smooth edges (No sharp corners)
-    });
-    
-    textGeo.computeBoundingBox();
-    const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-    textGeo.translate(centerOffset, 0, 0);
-
-    const textMat = new THREE.MeshPhysicalMaterial({ 
-        color: 0xffffff, 
-        roughness: 0.2, // Shiny plastic
-        metalness: 0.1,
-        clearcoat: 0.5
-    });
-
-    textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.y = 0;
-    scene.add(textMesh);
-});
-
-// --- 4. FLOATING SOFT SHAPES (Not Cyberpunk) ---
+// --- 3. FLOATING SOFT SHAPES (Background) ---
 const objects = [];
-const matCoral = new THREE.MeshPhysicalMaterial({ color: 0xff6b6b, roughness: 0.4 });
-const matMint = new THREE.MeshPhysicalMaterial({ color: 0x4ecdc4, roughness: 0.4 });
-const matYellow = new THREE.MeshPhysicalMaterial({ color: 0xffe66d, roughness: 0.4 });
+const matCoral = new THREE.MeshPhysicalMaterial({ color: 0xff6b6b, roughness: 0.4, clearcoat: 0.5 });
+const matMint = new THREE.MeshPhysicalMaterial({ color: 0x4ecdc4, roughness: 0.4, clearcoat: 0.5 });
+const matYellow = new THREE.MeshPhysicalMaterial({ color: 0xffe66d, roughness: 0.4, clearcoat: 0.5 });
 
 function createSoftShape() {
     const type = Math.floor(Math.random() * 3);
@@ -68,30 +34,34 @@ function createSoftShape() {
     let material = [matCoral, matMint, matYellow][Math.floor(Math.random() * 3)];
 
     if (type === 0) {
-        // Torus (Donut) - Very Round
-        mesh = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.4, 16, 50), material);
+        // Torus (Donut)
+        mesh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.6, 16, 50), material);
     } else if (type === 1) {
         // Icosahedron (Ball)
-        mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), material);
+        mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 1), material);
     } else {
         // Capsule
-        mesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.5, 1, 4, 8), material);
+        mesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.8, 2, 4, 8), material);
     }
 
-    // Random Position
-    mesh.position.x = (Math.random() - 0.5) * 30;
-    mesh.position.y = (Math.random() - 0.5) * 40 - 10;
-    mesh.position.z = (Math.random() - 0.5) * 15 - 5;
+    // Random Position (Around the text)
+    mesh.position.x = (Math.random() - 0.5) * 40;
+    mesh.position.y = (Math.random() - 0.5) * 50 - 5;
+    mesh.position.z = (Math.random() - 0.5) * 20 - 5;
     
-    mesh.userData = { speed: Math.random() * 0.01 + 0.005 };
+    mesh.userData = { 
+        speed: Math.random() * 0.02 + 0.01,
+        rotX: Math.random() * 0.01,
+        rotY: Math.random() * 0.01
+    };
     scene.add(mesh);
     objects.push(mesh);
 }
 
-// Create 20 Soft shapes
-for(let i=0; i<20; i++) createSoftShape();
+// Create 25 Soft shapes
+for(let i=0; i<25; i++) createSoftShape();
 
-// --- 5. ANIMATION LOOP ---
+// --- 4. ANIMATION LOOP ---
 let scrollY = 0;
 
 function animate() {
@@ -99,25 +69,15 @@ function animate() {
 
     // Float Shapes Up
     objects.forEach(obj => {
-        obj.rotation.x += 0.01;
-        obj.rotation.y += 0.01;
+        obj.rotation.x += obj.userData.rotX;
+        obj.rotation.y += obj.userData.rotY;
+        
+        // Move Up
         obj.position.y += obj.userData.speed + (scrollY * 0.0002);
-        if(obj.position.y > 20) obj.position.y = -25;
+        
+        // Reset if too high
+        if(obj.position.y > 25) obj.position.y = -30;
     });
-
-    // Parallax Text (Moves to top center)
-    if (textMesh) {
-        const targetY = scrollY * 0.012; 
-        const targetScale = Math.max(0.5, 1 - (scrollY * 0.001));
-
-        if(targetY < 5) {
-            textMesh.position.y = targetY;
-        } else {
-            textMesh.position.y = 5; // Stick at top
-        }
-        textMesh.scale.set(targetScale, targetScale, targetScale);
-        textMesh.rotation.y = Math.sin(Date.now() * 0.001) * 0.1; // Gentle sway
-    }
 
     renderer.render(scene, camera);
 }
@@ -129,6 +89,29 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// --- 5. PARALLAX TEXT ANIMATION (Using GSAP on HTML Text) ---
+if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    
+    // Animate the HTML Logo
+    const logo = document.querySelector(".hero-logo");
+    if(logo) {
+        gsap.to(".hero-logo", {
+            top: "30px",       // Stick to top
+            left: "50%",      // Stay centered horizontally
+            xPercent: -50,    // Keep centering alignment
+            yPercent: 0,
+            scale: 0.2,       // Shrink
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "300px top",
+                scrub: 1
+            }
+        });
+    }
+}
 
 // --- 6. MENU ---
 const menuBtn = document.getElementById('menu-toggle-btn');
@@ -149,13 +132,11 @@ if (menuBtn && menuOverlay) {
 const isHomePage = !window.location.pathname.includes("html") || window.location.pathname.includes("index");
 
 if (!isHomePage) {
-    // 1. Header
     const header = document.createElement('nav'); 
     header.className = 'nav-header';
     header.innerHTML = `<a href="index.html" class="back-btn-round">← HOME</a>`;
     document.body.prepend(header);
 
-    // 2. Dummy Data (6 Items to prove Zig Zag works)
     const data = [
         { title: "Soft Design", desc: "Why rounded corners matter.", img: "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80" },
         { title: "Color Theory", desc: "Using pastels effectively.", img: "https://images.unsplash.com/photo-1520690214124-2405c5217036?w=800&q=80" },
@@ -169,7 +150,6 @@ if (!isHomePage) {
     contentDiv.className = 'feed-container';
     
     data.forEach((item, index) => {
-        // We create specific classes or just let CSS nth-child handle it
         contentDiv.innerHTML += `
             <article class="content-item">
                 <div class="content-text">
