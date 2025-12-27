@@ -1,31 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     // ==========================================
-    // 1. THE 3D ROBOT MENU BUTTON
+    // 1. WIREFRAME ROBOT HEAD (MENU)
     // ==========================================
     const robotContainer = document.getElementById('robot-container');
     if (robotContainer) {
         const robScene = new THREE.Scene();
-        // Transparent background
         const robCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100); 
         robCamera.position.z = 5;
 
         const robRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        robRenderer.setSize(80, 80); // Matches CSS size
+        robRenderer.setSize(60, 60); 
         robotContainer.appendChild(robRenderer.domElement);
 
-        // Robot Head (Box)
-        const headGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
-        const headMat = new THREE.MeshNormalMaterial({ wireframe: false }); // Colorful look
+        // -- LINE ART HEAD --
+        // We use a basic mesh with wireframe: true for the line-art look
+        const headGeo = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+        const headMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
         const robotHead = new THREE.Mesh(headGeo, headMat);
         
-        // Eyes (Spheres)
-        const eyeGeo = new THREE.SphereGeometry(0.4, 16, 16);
-        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        // Eyes (Small filled squares inside)
+        const eyeGeo = new THREE.PlaneGeometry(0.3, 0.3);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, side: THREE.DoubleSide });
         const eye1 = new THREE.Mesh(eyeGeo, eyeMat);
         const eye2 = new THREE.Mesh(eyeGeo, eyeMat);
-        eye1.position.set(-0.6, 0.2, 1.3);
-        eye2.position.set(0.6, 0.2, 1.3);
+        eye1.position.set(-0.4, 0.1, 0.91);
+        eye2.position.set(0.4, 0.1, 0.91);
         
         const robotGroup = new THREE.Group();
         robotGroup.add(robotHead);
@@ -33,30 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
         robotGroup.add(eye2);
         robScene.add(robotGroup);
 
-        // Animation Loop for Robot
         const animateRobot = () => {
             requestAnimationFrame(animateRobot);
-            robotGroup.rotation.y += 0.02; // Rotate continuously
-            robotGroup.rotation.x = Math.sin(Date.now() * 0.002) * 0.2; // Nod slightly
+            robotGroup.rotation.y += 0.015;
+            robotGroup.rotation.x = Math.sin(Date.now() * 0.002) * 0.1;
             robRenderer.render(robScene, robCamera);
         };
         animateRobot();
 
-        // Click Logic
         const menuOverlay = document.getElementById('menu-overlay');
         robotContainer.addEventListener('click', () => {
             menuOverlay.classList.toggle('active');
         });
-        
         document.querySelectorAll('.menu-item').forEach(link => {
-            link.addEventListener('click', () => {
-                menuOverlay.classList.remove('active');
-            });
+            link.addEventListener('click', () => menuOverlay.classList.remove('active'));
         });
     }
 
     // ==========================================
-    // 2. MAIN BACKGROUND SCENE (The Polygon)
+    // 2. MAIN SCENE: POLYGON + RISING SAND
     // ==========================================
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x1a1a2e, 0.03);
@@ -66,46 +61,63 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     const container = document.getElementById('canvas-container');
     if(container) container.appendChild(renderer.domElement);
-
     camera.position.z = 10;
 
-    // The Big 3D Decagon (Icosahedron actually looks better/more "polygon")
-    const polyGeo = new THREE.IcosahedronGeometry(4, 1); // 4 = size, 1 = detail
-    const polyMat = new THREE.MeshBasicMaterial({ 
-        color: 0x00f3ff, 
-        wireframe: true, 
-        transparent: true, 
-        opacity: 0.3 
-    });
+    // A. The Big Wireframe Polygon
+    const polyGeo = new THREE.IcosahedronGeometry(4, 1); 
+    const polyMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true, transparent: true, opacity: 0.3 });
     const polygon = new THREE.Mesh(polyGeo, polyMat);
     scene.add(polygon);
 
-    // Some floating particles for depth
-    const partsGeo = new THREE.BufferGeometry();
-    const partsCount = 500;
-    const posArray = new Float32Array(partsCount * 3);
-    for(let i=0; i<partsCount*3; i++) posArray[i] = (Math.random()-0.5) * 50;
-    partsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const partsMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff });
-    const particles = new THREE.Points(partsGeo, partsMat);
-    scene.add(particles);
+    // B. RISING SAND PARTICLES (Bright & Visible)
+    const sandGeo = new THREE.BufferGeometry();
+    const sandCount = 1000;
+    const posArray = new Float32Array(sandCount * 3);
+    const speedArray = new Float32Array(sandCount); // Store speed for each particle
+
+    for(let i=0; i<sandCount; i++) {
+        // x, y, z
+        posArray[i*3] = (Math.random() - 0.5) * 60;   
+        posArray[i*3+1] = (Math.random() - 0.5) * 60; 
+        posArray[i*3+2] = (Math.random() - 0.5) * 40; 
+        speedArray[i] = 0.02 + Math.random() * 0.05; // Random upward speed
+    }
+
+    sandGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    
+    const sandMat = new THREE.PointsMaterial({ 
+        size: 0.12, 
+        color: 0x00f3ff, // Neon Cyan for high contrast against dark blue
+        transparent: true, 
+        opacity: 0.8 
+    });
+    
+    const sandSystem = new THREE.Points(sandGeo, sandMat);
+    scene.add(sandSystem);
 
     // Animation Loop
     let scrollY = 0;
     const animateMain = () => {
         requestAnimationFrame(animateMain);
 
-        // Rotate Polygon
+        // 1. Polygon Anim
         polygon.rotation.y += 0.002;
-        polygon.rotation.x += 0.001;
+        polygon.position.y = scrollY * 0.01; // Move up on scroll
+        let newOp = 0.3 - (scrollY * 0.0005); // Fade out
+        polygon.material.opacity = Math.max(0, newOp);
 
-        // Move Polygon UP on scroll and Fade Out
-        polygon.position.y = scrollY * 0.01; 
-        
-        // Opacity math: Start 0.3, fade to 0 as we scroll down
-        let newOp = 0.3 - (scrollY * 0.0005);
-        if (newOp < 0) newOp = 0;
-        polygon.material.opacity = newOp;
+        // 2. Sand Anim (Rise Up)
+        const positions = sandSystem.geometry.attributes.position.array;
+        for(let i=0; i<sandCount; i++) {
+            // Update Y position
+            positions[i*3+1] += speedArray[i]; 
+
+            // If it goes too high (top of screen is roughly y=20), reset to bottom
+            if(positions[i*3+1] > 20) {
+                positions[i*3+1] = -30;
+            }
+        }
+        sandSystem.geometry.attributes.position.needsUpdate = true; // Tell Three.js to redraw
 
         renderer.render(scene, camera);
     };
@@ -119,58 +131,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 3. SAGAR ANIMATION (Color -> Shrink -> Left)
+    // 3. SAGAR ANIMATION
     // ==========================================
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
         const logo = document.getElementById("hero-logo");
-        
         if (logo) {
             const letters = document.querySelectorAll('.letter');
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: "body",
-                    start: "top top",
-                    end: "600px top", // Duration of animation
-                    scrub: 1
+                    trigger: "body", start: "top top", end: "600px top", scrub: 1
                 }
             });
 
-            // 1. Change Colors (Water color effect)
-            tl.to(letters, {
-                color: (i) => i % 2 === 0 ? "#00f3ff" : "#ff007f", // Cyan/Pink
-                stagger: 0.1,
-                duration: 1
-            })
-            // 2. Back to White
-            .to(letters, {
-                color: "#ffffff",
-                duration: 1
-            })
-            // 3. Shrink & Move to Top-Left
-            .to(logo, {
-                top: "40px",
-                left: "40px",
-                scale: 0.25,
-                xPercent: 0, // Reset horizontal center
-                yPercent: 0, // Reset vertical center
-                transformOrigin: "top left",
-                position: "fixed",
-                duration: 2
-            });
+            tl.to(letters, { color: (i) => i % 2 === 0 ? "#00f3ff" : "#ff007f", stagger: 0.1, duration: 1 })
+              .to(letters, { color: "#ffffff", duration: 1 })
+              .to(logo, { top: "40px", left: "40px", scale: 0.25, xPercent: 0, yPercent: 0, transformOrigin: "top left", position: "fixed", duration: 2 });
         }
     }
 
     // ==========================================
-    // 4. BLOGS / PHOTOS CONTENT GENERATOR
+    // 4. BLOGS GENERATOR
     // ==========================================
     const isHomePage = document.getElementById('hero-logo');
-
-    // Only run this if we are NOT on the home page (Logo missing)
     if (!isHomePage) {
-        
-        // Fix: Check if header already exists to prevent duplicates
         if (!document.querySelector('.nav-header')) {
             const header = document.createElement('nav'); 
             header.className = 'nav-header';
@@ -196,13 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2 class="item-title">${item.title}</h2>
                         <p>${item.desc}</p>
                     </div>
-                    <div class="content-visual">
-                        <img src="${item.img}">
-                    </div>
-                </article>
-            `;
+                    <div class="content-visual"><img src="${item.img}"></div>
+                </article>`;
         });
-        
         document.querySelector('.scroll-container')?.appendChild(contentDiv);
 
         setTimeout(() => {
