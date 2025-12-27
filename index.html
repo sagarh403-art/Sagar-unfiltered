@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sagar | Portfolio</title>
+    <title>Sagar | Rain Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="home-mode">
 
+    <audio id="rain-audio" loop>
+        <source src="assets/rain.mp3" type="audio/mpeg">
+    </audio>
+    <button id="sound-toggle" class="sound-btn"><i class="fa-solid fa-volume-xmark"></i></button>
+
     <div id="canvas-container"></div>
 
-    <div class="grain-overlay"></div>
+    <div id="rain-overlay" class="splash-overlay"></div>
 
     <div class="logo-container">
         <h1 class="main-logo">SAGAR</h1>
@@ -20,16 +26,15 @@
 
     <div class="menu-overlay" id="menu-overlay">
         <div class="menu-links">
-            <a href="index.html" class="menu-item active-link">HOME</a>
+            <a href="index.html" class="menu-item">HOME</a>
             <a href="blogs.html" class="menu-item">BLOGS</a>
             <a href="photography.html" class="menu-item">PHOTOS</a>
-            <a href="#about" class="menu-item" id="link-about">ABOUT</a>
-            <a href="#socials" class="menu-item" id="link-socials">CONTACT</a>
+            <a href="index.html#about" class="menu-item">ABOUT</a>
+            <a href="index.html#socials" class="menu-item">CONTACT</a>
         </div>
     </div>
 
     <main class="scroll-container">
-        
         <section class="panel" id="hero">
             <div class="scroll-hint">SCROLL TO BEGIN</div>
         </section>
@@ -38,25 +43,35 @@
             <div class="panel-content glass-card">
                 <h2>THE ARCHITECT</h2>
                 <p>
-                    My work sits in the dark space between <i>design</i> and <i>logic</i>.
-                    <br><br>
-                    I build digital stages where brands perform.
+                    I build digital storms. <br>
+                    My work sits in the dark space between <i>logic</i> and <i>emotion</i>.
                 </p>
             </div>
         </section>
 
         <section class="panel center" id="socials">
             <div class="panel-content glass-card">
-                <h2>GET IN TOUCH</h2>
+                <h2>NETWORK</h2>
                 <div class="social-grid">
-                    <a href="#" class="social-link">INSTAGRAM</a>
-                    <a href="#" class="social-link">TWITTER</a>
-                    <a href="#" class="social-link">LINKEDIN</a>
-                    <a href="#" class="social-link">EMAIL</a>
+                    <a href="#" class="social-card">
+                        <i class="fa-brands fa-instagram"></i>
+                        <span>Instagram</span>
+                    </a>
+                    <a href="#" class="social-card">
+                        <i class="fa-brands fa-twitter"></i>
+                        <span>Twitter</span>
+                    </a>
+                    <a href="#" class="social-card">
+                        <i class="fa-brands fa-linkedin"></i>
+                        <span>LinkedIn</span>
+                    </a>
+                    <a href="#" class="social-card">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>Email</span>
+                    </a>
                 </div>
             </div>
         </section>
-
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
