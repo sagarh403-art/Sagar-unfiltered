@@ -1,292 +1,261 @@
-// --- 1. SETUP & DATA ---
-const portfolioData = [ /* (Keep your existing data here) */
-    { type: "BLOG", title: "Storm Systems", description: "Procedural weather generation.", image: "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=800&q=80" },
-    { type: "PHOTOGRAPHY", title: "Monsoon", description: "Streets of Mumbai.", image: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=800&q=80" },
-];
-
-// --- 2. THREE.JS SCENE SETUP ---
+// --- 1. SETUP ---
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x0a0a0a, 0.015); // Dark blue-black fog
+// Vibrant Fog to fade objects into the distance
+scene.fog = new THREE.FogExp2(0x2d1b4e, 0.02);
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-camera.position.set(0, 3, 25); // Look down slightly
+camera.position.z = 15;
+camera.position.y = 0;
 
-// --- 3. BIGGER STAGE & LIGHTS ---
-// Much bigger stage to hold the text
-const stageGeo = new THREE.CylinderGeometry(15, 15, 0.5, 64);
-const stageMat = new THREE.MeshStandardMaterial({ 
-    color: 0x050505, roughness: 0.3, metalness: 0.9, envMapIntensity: 1 
-});
-const stage = new THREE.Mesh(stageGeo, stageMat);
-stage.position.y = -5;
-stage.receiveShadow = true;
-scene.add(stage);
-
-// Invisible plane for raycasting clicks onto the "floor"
-const floorPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(200, 200),
-    new THREE.MeshBasicMaterial({ visible: false })
-);
-floorPlane.rotation.x = -Math.PI / 2;
-floorPlane.position.y = -4.7;
-scene.add(floorPlane);
-
-// Dramatic Lighting
-const spotLight = new THREE.SpotLight(0x4facfe, 15);
-spotLight.position.set(0, 30, 10);
-spotLight.angle = 0.6;
-spotLight.penumbra = 1;
-spotLight.castShadow = true;
-scene.add(spotLight);
-
-const rimLight = new THREE.PointLight(0xffffff, 2, 50);
-rimLight.position.set(0, 5, -20); // Backlight for the text
-scene.add(rimLight);
-
-const ambientLight = new THREE.AmbientLight(0x444444);
+// --- 2. VIBRANT LIGHTING ---
+const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white
 scene.add(ambientLight);
 
-// --- 4. REAL 3D TEXT ("SAGAR") ---
+const pinkLight = new THREE.PointLight(0xff007f, 2, 50); // Hot Pink
+pinkLight.position.set(10, 10, 10);
+scene.add(pinkLight);
+
+const cyanLight = new THREE.PointLight(0x00f3ff, 2, 50); // Cyan
+cyanLight.position.set(-10, -5, 10);
+scene.add(cyanLight);
+
+// --- 3. THE 3D TEXT ("SAGAR") ---
+let textMesh; // Will hold the 3D text
 const fontLoader = new THREE.FontLoader();
-// Load a bold font from a CDN
+
 fontLoader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', (font) => {
     const textGeo = new THREE.TextGeometry('SAGAR', {
         font: font,
-        size: 4, // Big size
-        height: 1, // Thickness
+        size: 3, 
+        height: 0.5, 
         curveSegments: 12,
         bevelEnabled: true,
-        bevelThickness: 0.1,
-        bevelSize: 0.1,
-        bevelOffset: 0,
+        bevelThickness: 0.05,
+        bevelSize: 0.05,
         bevelSegments: 5
     });
-
-    // Center the text geometry
+    
+    // Center it
     textGeo.computeBoundingBox();
     const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-    
-    // Cyberpunk material (reflective chrome)
-    const textMat = new THREE.MeshPhysicalMaterial({ 
-        color: 0xffffff, metalness: 1, roughness: 0.1, 
-        clearcoat: 1.0, clearcoatRoughness: 0.1, reflectivity: 1
+    textGeo.translate(centerOffset, 0, 0);
+
+    // Vibrant Material
+    const textMat = new THREE.MeshStandardMaterial({ 
+        color: 0xffffff, 
+        roughness: 0.1, 
+        metalness: 0.1,
+        emissive: 0x2d1b4e,
+        emissiveIntensity: 0.2
     });
-    
-    const textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.x = centerOffset;
-    textMesh.position.y = -4.7; // Sit on stage
-    textMesh.position.z = 0;
-    textMesh.castShadow = true;
+
+    textMesh = new THREE.Mesh(textGeo, textMat);
+    textMesh.position.y = -1; // Start in center
     scene.add(textMesh);
 });
 
-// --- 5. SUBTLE RAIN (Procedural Texture) ---
-// Helper to create a "drop" texture canvas programmatically
-function createDropTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 32; canvas.height = 32;
-    const context = canvas.getContext('2d');
-    
-    const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
-    gradient.addColorStop(0, 'rgba(255,255,255,0.8)'); // Bright center
-    gradient.addColorStop(0.4, 'rgba(200,200,255,0.2)');
-    gradient.addColorStop(1, 'rgba(0,0,0,0)'); // Transparent edge
-    
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, 32, 32);
-    return new THREE.CanvasTexture(canvas);
-}
+// --- 4. PROCEDURAL OBJECT GENERATOR (Robots, Planets, etc.) ---
+const objects = []; // Store floating objects
 
-const rainGeo = new THREE.BufferGeometry();
-const rainCount = 6000; // More drops, but subtler
-const posArray = new Float32Array(rainCount * 3);
-const velocityArray = new Float32Array(rainCount);
+// Helper Materials
+const matCyan = new THREE.MeshStandardMaterial({ color: 0x00f3ff, roughness: 0.4 });
+const matPink = new THREE.MeshStandardMaterial({ color: 0xff007f, roughness: 0.4 });
+const matYellow = new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.4 });
+const matWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
 
-for(let i = 0; i < rainCount * 3; i+=3) {
-    posArray[i] = (Math.random() - 0.5) * 100; // Wide spread
-    posArray[i+1] = Math.random() * 100 - 10; // High up
-    posArray[i+2] = (Math.random() - 0.5) * 100; // Deep
-    velocityArray[i/3] = 1 + Math.random() * 1.5; // Faster variance
-}
+function createRandomObject() {
+    const type = Math.floor(Math.random() * 5); // 0-4 types
+    let mesh = new THREE.Group();
 
-rainGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-const rainMat = new THREE.PointsMaterial({
-    color: 0xaaccff, // Slight blue tint
-    size: 0.3, // Small drops
-    map: createDropTexture(), // Use the drop texture
-    transparent: true,
-    opacity: 0.4, // Subtle opacity
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
-});
-const rainSystem = new THREE.Points(rainGeo, rainMat);
-scene.add(rainSystem);
-
-// --- 6. INTERACTIVE SPLASH SYSTEM (Raycasting) ---
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-let splashes = []; // Array to hold active splashes
-
-// Create a reusable splash geometry (a ring that expands)
-const splashGeo = new THREE.RingGeometry(0.1, 0.3, 32);
-splashGeo.rotateX(-Math.PI / 2); // Lay flat
-
-function createSplash(position) {
-    const splashMat = new THREE.MeshBasicMaterial({
-        color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide
-    });
-    const splashMesh = new THREE.Mesh(splashGeo, splashMat);
-    splashMesh.position.copy(position);
-    splashMesh.position.y += 0.1; // Just above floor
-    splashMesh.userData = { expandRate: 0.1 + Math.random()*0.1, life: 1.0 }; // Custom data for animation
-    scene.add(splashMesh);
-    splashes.push(splashMesh);
-}
-
-function onPointerClick(event) {
-    // Calculate pointer position in normalized device coordinates (-1 to +1)
-    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(pointer, camera);
-    // Check if we hit the invisible floor plane
-    const intersects = raycaster.intersectObject(floorPlane);
-
-    if (intersects.length > 0) {
-        createSplash(intersects[0].point);
+    if (type === 0) { 
+        // PLANET (Sphere + Ring)
+        const planet = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), matCyan);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.1, 2, 32), matPink);
+        ring.rotation.x = Math.PI / 2;
+        mesh.add(planet);
+        mesh.add(ring);
+    } 
+    else if (type === 1) {
+        // DNA HELIX SEGMENT
+        for(let i=0; i<5; i++) {
+            const b1 = new THREE.Mesh(new THREE.SphereGeometry(0.2), matYellow);
+            const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.2), matYellow);
+            b1.position.set(-0.5, i*0.5, Math.sin(i)*0.5);
+            b2.position.set(0.5, i*0.5, -Math.sin(i)*0.5);
+            mesh.add(b1); mesh.add(b2);
+            // Connector
+            const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1), matWhite);
+            bar.rotation.z = Math.PI/2;
+            bar.rotation.y = Math.sin(i)*0.5;
+            bar.position.y = i*0.5;
+            mesh.add(bar);
+        }
     }
+    else if (type === 2) {
+        // ROBOT HEAD
+        const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 1), matWhite);
+        const eye1 = new THREE.Mesh(new THREE.SphereGeometry(0.2), matPink);
+        const eye2 = new THREE.Mesh(new THREE.SphereGeometry(0.2), matPink);
+        eye1.position.set(-0.3, 0.1, 0.5);
+        eye2.position.set(0.3, 0.1, 0.5);
+        const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.8), matCyan);
+        antenna.position.y = 0.8;
+        mesh.add(head); mesh.add(eye1); mesh.add(eye2); mesh.add(antenna);
+    }
+    else if (type === 3) {
+        // SATELLITE
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), matYellow);
+        const panelL = new THREE.Mesh(new THREE.BoxGeometry(2, 0.1, 1), matCyan);
+        const panelR = new THREE.Mesh(new THREE.BoxGeometry(2, 0.1, 1), matCyan);
+        panelL.position.x = -1.6;
+        panelR.position.x = 1.6;
+        mesh.add(body); mesh.add(panelL); mesh.add(panelR);
+    }
+    else {
+        // CAMERA
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1, 0.5), matWhite);
+        const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.5, 16), matPink);
+        lens.rotation.x = Math.PI/2;
+        lens.position.z = 0.4;
+        mesh.add(body); mesh.add(lens);
+    }
+
+    // Random Position
+    mesh.position.x = (Math.random() - 0.5) * 30;
+    mesh.position.y = (Math.random() - 0.5) * 50 - 20; // Spread vertically
+    mesh.position.z = (Math.random() - 0.5) * 20 - 5; // Depth
+    
+    // Random Rotation Speed
+    mesh.userData = { 
+        rotX: Math.random() * 0.02, 
+        rotY: Math.random() * 0.02,
+        speedY: 0.02 + Math.random() * 0.03 
+    };
+
+    scene.add(mesh);
+    objects.push(mesh);
 }
-window.addEventListener('click', onPointerClick);
-window.addEventListener('touchstart', (e) => onPointerClick(e.touches[0]), {passive: false});
 
+// Create 30 random objects
+for(let i=0; i<30; i++) {
+    createRandomObject();
+}
 
-// --- 7. ANIMATION LOOP ---
-let lastScrollY = window.scrollY;
-let mouseX = 0; let mouseY = 0;
+// --- 5. ANIMATION LOOP ---
+let scrollY = 0;
 
 function animate() {
     requestAnimationFrame(animate);
-    const time = Date.now() * 0.001;
 
-    // Rotate Stage slowly
-    stage.rotation.y = Math.sin(time * 0.2) * 0.1;
-
-    // Animate Rain Drops
-    const positions = rainSystem.geometry.attributes.position.array;
-    for(let i = 1; i < rainCount * 3; i+=3) {
-        positions[i] -= velocityArray[Math.floor(i/3)];
-        if (positions[i] < -20) positions[i] = 80; // Reset to top
-    }
-    rainSystem.geometry.attributes.position.needsUpdate = true;
-
-    // Animate Splashes
-    splashes.forEach((splash, index) => {
-        splash.scale.x += splash.userData.expandRate;
-        splash.scale.y += splash.userData.expandRate;
-        splash.scale.z += splash.userData.expandRate;
-        splash.userData.life -= 0.02;
-        splash.material.opacity = splash.userData.life;
+    // 1. ANIMATE FLOATING OBJECTS
+    objects.forEach(obj => {
+        obj.rotation.x += obj.userData.rotX;
+        obj.rotation.y += obj.userData.rotY;
         
-        // Remove dead splashes
-        if(splash.userData.life <= 0) {
-            scene.remove(splash);
-            splashes.splice(index, 1);
-        }
+        // Move UP constantly based on scroll + speed
+        obj.position.y += obj.userData.speedY + (scrollY * 0.0001);
+
+        // Reset if too high
+        if(obj.position.y > 20) obj.position.y = -30;
     });
 
-    // Camera Movement
-    camera.position.x += (mouseX * 1 - camera.position.x) * 0.05;
-    camera.position.y += (3 + mouseY * 0.5 - camera.position.y) * 0.05;
-    camera.lookAt(0, -2, 0);
+    // 2. PARALLAX TEXT ANIMATION (The Core Requirement)
+    if (textMesh) {
+        // Logic:
+        // Scroll 0 -> Y = -1, Scale = 1
+        // Scroll 500 -> Y = 6 (Top), Scale = 0.4 (Small)
+        
+        const targetY = -1 + (scrollY * 0.015); 
+        const targetScale = Math.max(0.4, 1 - (scrollY * 0.0015)); // Don't go below 0.4 size
+
+        // Limit the height so it sticks to top
+        if(targetY < 6) {
+            textMesh.position.y = targetY;
+        } else {
+            textMesh.position.y = 6; // Stick at top
+        }
+        
+        textMesh.scale.set(targetScale, targetScale, targetScale);
+        
+        // Gentle float rotation for text
+        textMesh.rotation.y = Math.sin(Date.now() * 0.001) * 0.1;
+        textMesh.rotation.x = Math.sin(Date.now() * 0.002) * 0.05;
+    }
 
     renderer.render(scene, camera);
 }
 animate();
 
-// --- 8. UI LOGIC (Audio, Menu, Scroll) ---
-// Audio Toggle
-const soundBtn = document.getElementById('sound-toggle');
-const audio = document.getElementById('rain-audio');
-let isMuted = true;
-if(soundBtn && audio) {
-    soundBtn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        if(!isMuted) { audio.play(); soundBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>'; } 
-        else { audio.pause(); soundBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>'; }
-    });
-}
-
-// Scroll overlay logic
+// --- 6. SCROLL LISTENER ---
 window.addEventListener('scroll', () => {
-    const currentScroll = window.scrollY;
-    const overlay = document.getElementById('rain-overlay');
-    if (currentScroll < lastScrollY && overlay) overlay.style.opacity = '0.4';
-    else if (overlay) overlay.style.opacity = '0';
-    lastScrollY = currentScroll;
+    scrollY = window.scrollY;
 });
 
-// Mouse tracking
-window.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-});
-
-// Resize handler
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Logo Shrink Animation
-if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-    const logo = document.querySelector(".logo-container");
-    if(logo) {
-        gsap.to(".logo-container", {
-            top: "40px", left: "50px", xPercent: 0, yPercent: 0,
-            scale: 0.3, transformOrigin: "top left",
-            scrollTrigger: { trigger: "body", start: "top top", end: "300px top", scrub: 1 }
-        });
-    }
-}
-
-// --- 9. MENU & PAGE GENERATION (Keep previous logic) ---
+// --- 7. MENU & PAGE LOGIC ---
 const menuBtn = document.getElementById('menu-toggle-btn');
 const menuOverlay = document.getElementById('menu-overlay');
+
 if (menuBtn && menuOverlay) {
     menuBtn.addEventListener('click', () => {
         menuOverlay.classList.toggle('active');
         menuBtn.innerText = menuOverlay.classList.contains('active') ? "CLOSE" : "MENU";
     });
+    
     document.querySelectorAll('.menu-item').forEach(link => {
         link.addEventListener('click', () => {
-            menuOverlay.classList.remove('active'); menuBtn.innerText = "MENU";
+            menuOverlay.classList.remove('active');
+            menuBtn.innerText = "MENU";
         });
     });
 }
 
-// Blog/Photo Page Generator
-const isHomePage = document.querySelector('.logo-container');
+// --- 8. BLOG/PHOTO PAGE CONTENT ---
+const isHomePage = !window.location.pathname.includes("html") || window.location.pathname.includes("index");
+
 if (!isHomePage) {
-    const header = document.createElement('nav'); header.className = 'nav-header';
-    header.innerHTML = `<a href="index.html" class="back-btn-large">← HOME</a><h2 style="font-family:'Syne'; font-size:1.5rem; margin:0; color:white;">ARCHIVE</h2>`;
+    // Inject Header
+    const header = document.createElement('nav');
+    header.className = 'nav-header';
+    header.innerHTML = `<a href="index.html" class="back-btn-vibrant">← HOME</a>`;
     document.body.prepend(header);
 
-    const contentDiv = document.createElement('div'); contentDiv.className = 'feed-container';
+    // Dummy Data
+    const portfolioData = [
+        { type: "BLOG", title: "Cyber Aesthetics", description: "The rise of neon in web design.", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
+        { type: "PHOTOGRAPHY", title: "Neon Tokyo", description: "Night walks in Shinjuku.", image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
+    ];
+
+    const contentDiv = document.createElement('div');
+    contentDiv.style.maxWidth = "1000px";
+    contentDiv.style.margin = "150px auto";
+    contentDiv.style.padding = "20px";
+    
     const pageType = window.location.pathname.includes("blogs") ? "BLOG" : "PHOTOGRAPHY";
-    portfolioData.filter(item => item.type === pageType).forEach(item => {
+    
+    portfolioData.forEach(item => {
         contentDiv.innerHTML += `
-            <article class="content-item">
-                <div class="content-text"><h2 class="item-title">${item.title}</h2><p>${item.description}</p></div>
-                <div class="content-visual"><img src="${item.image}" class="content-img"></div>
-            </article>`;
+            <div style="display:flex; align-items:center; gap:50px; margin-bottom:100px; color:white;">
+                <div style="flex:1;">
+                    <h2 style="font-size:3rem; margin:0; color:var(--accent-cyan);">${item.title}</h2>
+                    <p style="font-size:1.2rem;">${item.description}</p>
+                </div>
+                <div style="flex:1;">
+                    <img src="${item.image}" style="width:100%; border-radius:20px; box-shadow:0 10px 30px rgba(0,243,255,0.2);">
+                </div>
+            </div>
+        `;
     });
     document.querySelector('.scroll-container')?.appendChild(contentDiv);
-    setTimeout(() => { gsap.utils.toArray('.content-item').forEach(item => gsap.to(item, { opacity: 1, y: 0, duration: 1, scrollTrigger: { trigger: item, start: "top 80%" } })); }, 100);
 }
