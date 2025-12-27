@@ -2,35 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blogs // Archive</title>
+    <title>Sagar | Blogs</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <canvas id="webgl"></canvas>
-    <main>
-        <section class="panel center">
-            <h1>TEXT ARCHIVE</h1>
-            <p>Scroll to read entries.</p>
-        </section>
-        
-        <section class="panel">
-            <h2>ENTRY: SCI-FI 01</h2>
-            <p>"The Chrono-Debt was not just a financial burden; it was a temporal one..."</p>
-            <a href="#" class="lando-btn">READ FULL</a>
-        </section>
+<body class="page-content">
 
-        <section class="panel right">
-            <h2>ENTRY: TECH LOG</h2>
-            <p>Building a retro-futuristic interface using Three.js and WebGL.</p>
-            <a href="#" class="lando-btn">READ FULL</a>
-        </section>
+    <div id="canvas-container"></div>
 
-        <section class="panel center">
-            <a href="index.html" class="lando-btn"><< RETURN HOME</a>
-        </section>
-    </main>
+    <nav class="top-nav">
+        <a href="index.html" class="back-link">← HOME</a>
+        <h2 class="page-title">WRITING LOGS</h2>
+    </nav>
+
+    <div id="content-feed" class="feed-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script type="module" src="./script.js"></script>
 </body>
 </html>
