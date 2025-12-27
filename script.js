@@ -1,88 +1,124 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
-import { gsap } from 'https://cdn.skypack.dev/gsap';
+// --- PART 1: YOUR DATA (EDIT THIS TO ADD BLOGS/PHOTOS) ---
+// Note: Put your images in an 'assets' folder locally!
+// For now, I am using placeholder URLs so you can see it working immediately.
 
-// --- SETUP ---
-const scene = new THREE.Scene();
-// Add subtle fog for depth (fade to black)
-scene.fog = new THREE.FogExp2(0x050505, 0.1);
+const portfolioData = [
+    {
+        type: "BLOG",
+        title: "The Chrono Debt",
+        description: "A sci-fi exploration of time currency and the human cost of eternal life.",
+        image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?w=800&q=80" // Replace with "assets/my-story.jpg"
+    },
+    {
+        type: "PHOTOGRAPHY",
+        title: "Neon Nights",
+        description: "Captured at 3AM in the heart of Bengaluru. Sony A7III, 35mm.",
+        image: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" // Replace with "assets/photo1.jpg"
+    },
+    {
+        type: "BLOG",
+        title: "Minimalism in WebGL",
+        description: "How to create high-performance 3D websites without sacrificing aesthetics.",
+        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80"
+    },
+    {
+        type: "PHOTOGRAPHY",
+        title: "Urban Decay",
+        description: "The contrast between nature and concrete structures.",
+        image: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=800&q=80"
+    }
+];
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+// --- PART 2: GENERATE CONTENT (ZIG-ZAG LAYOUT) ---
+const feedContainer = document.getElementById('content-feed');
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#webgl'), alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio); // Keep it crisp for pixel art feel
-
-// --- THE GLITCHY NEWSPAPER OBJECT ---
-// We use a PlaneGeometry with many segments so we can distort it
-const geometry = new THREE.PlaneGeometry(6, 8, 32, 32);
-
-// Load a "Newspaper" texture (Replace this URL with your own photo later!)
-const loader = new THREE.TextureLoader();
-// Using a generic noise/grid texture for the "Glitch" look
-const texture = loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/grid.png'); 
-texture.magFilter = THREE.NearestFilter; // KEEPS IT PIXELATED (Important for 8-bit)
-
-const material = new THREE.MeshBasicMaterial({ 
-    map: texture,
-    wireframe: true, // Gives the "Digital Frame" look
-    color: 0x33ff00, // Retro Green wireframe
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.8
+portfolioData.forEach(item => {
+    // Create the HTML for each item
+    const article = document.createElement('article');
+    article.className = 'content-item';
+    
+    article.innerHTML = `
+        <div class="content-text">
+            <span class="category-tag">${item.type}</span>
+            <h2 class="item-title">${item.title}</h2>
+            <p class="item-desc">${item.description}</p>
+        </div>
+        <div class="content-visual">
+            <img src="${item.image}" alt="${item.title}" class="content-img">
+        </div>
+    `;
+    
+    feedContainer.appendChild(article);
 });
 
-const paper = new THREE.Mesh(geometry, material);
-scene.add(paper);
+// --- PART 3: ANIMATE ON SCROLL (GSAP) ---
+gsap.registerPlugin(ScrollTrigger);
 
-// --- ANIMATION VARIABLES ---
-let time = 0;
-
-// --- SCROLL LOGIC ---
-let scrollY = window.scrollY;
-window.addEventListener('scroll', () => {
-    scrollY = window.scrollY;
-    
-    // Twist the paper as you scroll
-    gsap.to(paper.rotation, {
-        x: scrollY * 0.001,
-        y: scrollY * 0.002,
-        duration: 0.5
+gsap.utils.toArray('.content-item').forEach(item => {
+    gsap.to(item, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+            trigger: item,
+            start: "top 80%", // Animation starts when item is 80% down the screen
+            toggleActions: "play none none reverse"
+        }
     });
 });
 
-// --- ANIMATION LOOP ---
+// --- PART 4: THE 3D "FACE" MODEL ---
+// Since we don't have your .glb file, we use a "Wireframe Head" aesthetic
+// which looks very Lando Norris / Iron Man HUD style.
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// Create a complex shape to represent the "Head"
+const geometry = new THREE.IcosahedronGeometry(2, 4); // High detail sphere
+const material = new THREE.MeshNormalMaterial({ wireframe: true });
+const headShape = new THREE.Mesh(geometry, material);
+
+scene.add(headShape);
+camera.position.z = 5;
+
+// MOUSE INTERACTION (The "Wrapping" Effect)
+let mouseX = 0;
+let mouseY = 0;
+
+document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+});
+
 function animate() {
     requestAnimationFrame(animate);
-    time += 0.05;
 
-    // GLITCH EFFECT: Randomly distort the vertices
-    // This makes the paper look like it's "buzzing" or glitching
-    const positionAttribute = geometry.attributes.position;
-    
-    for (let i = 0; i < positionAttribute.count; i++) {
-        // Get original positions (We approximate by using sine waves)
-        const x = positionAttribute.getX(i);
-        const y = positionAttribute.getY(i);
-        
-        // Create a "Wave" effect
-        const z = Math.sin(x * 2 + time) * 0.2 + Math.cos(y * 1.5 + time) * 0.2;
-        
-        // Add random "Glitch" noise occasionally
-        const noise = (Math.random() - 0.5) * 0.05; 
-        
-        positionAttribute.setZ(i, z + noise);
-    }
-    positionAttribute.needsUpdate = true; // Tell Three.js to update the shape
+    // Rotate slowly
+    headShape.rotation.y += 0.003;
+    headShape.rotation.x += 0.001;
+
+    // "Look" at the mouse (The Lando Effect)
+    headShape.rotation.x += mouseY * 0.05;
+    headShape.rotation.y += mouseX * 0.05;
+
+    // Pulse Effect (Breathing)
+    const time = Date.now() * 0.001;
+    headShape.scale.setScalar(1 + Math.sin(time) * 0.05);
 
     renderer.render(scene, camera);
 }
 
-// Handle Window Resize
+animate();
+
+// Handle Resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-animate();
