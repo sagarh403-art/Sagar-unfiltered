@@ -202,3 +202,103 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 });
+// ... (Keep the top part of your script: Robot, Polygon, etc.) ...
+
+    // ==========================================
+    // 4. PAGE CONTENT GENERATOR
+    // ==========================================
+    const isHomePage = document.getElementById('hero-logo');
+
+    // ONLY RUN IF WE ARE NOT ON HOME PAGE
+    if (!isHomePage) {
+        
+        // --- A. FIX DOUBLE HOME BUTTON ---
+        // Only add the header if it doesn't exist yet
+        if (!document.querySelector('.nav-header')) {
+            const header = document.createElement('nav'); 
+            header.className = 'nav-header';
+            header.innerHTML = `<a href="index.html" class="back-btn-round">← HOME</a>`;
+            document.body.prepend(header);
+        }
+
+        const path = window.location.pathname;
+        const isPhotoPage = path.includes("photography") || path.includes("photos");
+
+        // --- B. PHOTOGRAPHY PAGE (3D SLIDER) ---
+        if (isPhotoPage) {
+            // 1. Create the Banner/Slider Container
+            const banner = document.createElement('div');
+            banner.className = 'banner';
+            
+            const slider = document.createElement('div');
+            slider.className = 'slider';
+            
+            // 2. Demo Photos (Need at least 8-10 for a good circle)
+            const photos = [
+                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
+                "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80",
+                "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80",
+                "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
+                "https://images.unsplash.com/photo-1558655146-d09347e0c766?w=800&q=80",
+                "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80",
+                "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=800&q=80",
+                "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80",
+                "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80"
+            ];
+
+            // 3. Set CSS Variable for Quantity (Critical for Math)
+            slider.style.setProperty('--quantity', photos.length);
+
+            // 4. Create Items
+            photos.forEach((url, index) => {
+                const item = document.createElement('div');
+                item.className = 'item';
+                // CSS Math needs index to be 1-based (1, 2, 3...)
+                item.style.setProperty('--position', index + 1);
+                
+                const img = document.createElement('img');
+                img.src = url;
+                item.appendChild(img);
+                slider.appendChild(item);
+            });
+
+            banner.appendChild(slider);
+            document.querySelector('.scroll-container').appendChild(banner);
+        } 
+        
+        // --- C. BLOGS PAGE (ZIG-ZAG LAYOUT) ---
+        else {
+            const blogs = [
+                { title: "Digital Realms", desc: "Building worlds with code.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
+                { title: "Neon Dreams", desc: "The aesthetics of cyberpunk.", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
+                { title: "Geometric Art", desc: "Mathematics in motion.", img: "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80" },
+                { title: "Fluid UI", desc: "Interfaces that breathe.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" }
+            ];
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'feed-container';
+            
+            blogs.forEach((item, index) => {
+                contentDiv.innerHTML += `
+                    <article class="content-item">
+                        <div class="content-text">
+                            <span style="color:var(--accent-cyan); font-weight:bold;">0${index + 1}</span>
+                            <h2 class="item-title">${item.title}</h2>
+                            <p>${item.desc}</p>
+                        </div>
+                        <div class="content-visual"><img src="${item.img}"></div>
+                    </article>`;
+            });
+            document.querySelector('.scroll-container').appendChild(contentDiv);
+
+            // Fade In Animation for Blogs
+            setTimeout(() => {
+                if(typeof gsap !== 'undefined') {
+                    gsap.utils.toArray('.content-item').forEach(item => {
+                        gsap.to(item, { opacity: 1, duration: 1, scrollTrigger: { trigger: item, start: "top 85%" } });
+                    });
+                }
+            }, 100);
+        }
+    }
+});
