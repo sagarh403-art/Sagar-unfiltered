@@ -1,101 +1,79 @@
+/* IMPORT 8-BIT FONT */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+:root {
+    --retro-green: #33ff00;
+    --paper-white: #e0e0e0;
+    --dark-bg: #050505;
+}
+
 body {
     margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #000;
-    color: white;
+    background-color: var(--dark-bg);
+    color: var(--paper-white);
+    font-family: 'VT323', monospace; /* 8-bit style font */
     overflow-x: hidden;
 }
 
-/* The 3D Canvas stays fixed in the background */
+/* CRT SCANLINE OVERLAY (The "Old Screen" effect) */
+body::after {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 100;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none; /* Lets you click through it */
+}
+
 #webgl {
     position: fixed;
     top: 0;
     left: 0;
-    outline: none;
-    z-index: -1; /* Puts it behind the text */
+    z-index: -1;
+    filter: contrast(1.2) brightness(1.1); /* Makes the 3D look sharper/older */
 }
 
-/* Sections for scrolling */
+/* TYPOGRAPHY */
+h1 { font-size: 6rem; text-transform: uppercase; margin: 0; text-shadow: 2px 2px 0px #000; letter-spacing: -2px; }
+h2 { font-size: 4rem; color: var(--retro-green); text-shadow: 2px 2px 0px #000; }
+p { font-size: 1.8rem; max-width: 600px; background: rgba(0,0,0,0.7); padding: 10px; border: 1px dashed var(--retro-green); }
+
+/* SECTIONS */
 .panel {
-    height: 100vh; /* Each section is full screen */
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 0 10%;
-    pointer-events: none; /* Lets you click through to the 3D if needed */
 }
-
-h1 { font-size: 5rem; text-transform: uppercase; margin: 0; }
-h2 { font-size: 3rem; text-transform: uppercase; color: #d1fd00; /* Lando Yellow */ }
-p { font-size: 1.5rem; max-width: 500px; }
-
-/* Alignment variations */
 .right { align-items: flex-end; text-align: right; }
 .center { align-items: center; text-align: center; }
 
-/* Lando Norris Color Palette */
-:root {
-    --lando-yellow: #D2FF00; /* The signature neon yellow */
-    --lando-black: #111112;
-}
+/* 8-BIT BUTTONS */
+.button-container { display: flex; gap: 2rem; margin-top: 2rem; }
 
-.button-container {
-    display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-/* 1. The Button Shell */
 .lando-btn {
-    position: relative;
-    display: inline-block;
-    padding: 1.5rem 3rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 100px; /* Fully rounded capsule */
-    color: white;
+    padding: 1rem 2rem;
+    border: 2px solid var(--paper-white);
+    background: black;
+    color: var(--paper-white);
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    text-transform: uppercase;
     text-decoration: none;
-    font-weight: bold;
-    font-size: 1.2rem;
-    overflow: hidden; /* Traps the fill animation inside */
-    transition: transform 0.1s linear; /* Smooth movement */
-    z-index: 10;
     cursor: pointer;
-}
-
-/* 2. The Text (Ensures it stays on top of the color) */
-.btn-text {
-    position: relative;
-    z-index: 2; /* Puts text above the yellow fill */
-    transition: color 0.3s ease;
-}
-
-/* 3. The "Swipe" Fill Effect */
-.btn-fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--lando-yellow);
-    z-index: 1; /* Behind the text */
-    
-    /* Start position: Hidden below the button */
-    transform: translateY(100%); 
-    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1); /* "Expo" ease for snap */
-    border-radius: 50%; /* Makes the fill look like a liquid bubble rising */
-}
-
-/* 4. Hover State Actions */
-.lando-btn:hover .btn-fill {
-    transform: translateY(0); /* Slides up to fill the button */
-    border-radius: 0; /* Squares out to fill corners */
-}
-
-.lando-btn:hover .btn-text {
-    color: var(--lando-black); /* Text turns black for contrast */
+    transition: 0.1s;
+    box-shadow: 4px 4px 0px var(--retro-green); /* Hard shadow for 8-bit feel */
 }
 
 .lando-btn:hover {
-    border-color: var(--lando-yellow);
+    transform: translate(2px, 2px); /* Button press effect */
+    box-shadow: 2px 2px 0px var(--retro-green);
+    background: var(--retro-green);
+    color: black;
 }
