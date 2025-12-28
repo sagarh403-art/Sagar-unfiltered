@@ -25,19 +25,23 @@
 
 </head>
 
-    <div id="preloader">
+<div id="preloader">
     <div class="loader-container">
-        <div class="bike-wrapper">
-            <i class="fa-solid fa-bicycle" id="bike-icon"></i>
-        </div>
-        
-        <div class="loading-pill">
-            <div class="pill-fill"></div>
-        </div>
-
+        <div class="bike-wrapper"><i class="fa-solid fa-bicycle" id="bike-icon"></i></div>
+        <div class="loading-pill"><div class="pill-fill"></div></div>
         <div class="loading-text">LOADING UNIVERSE...</div>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        var loader = document.getElementById('preloader');
+        if(loader) {
+            loader.style.display = 'none'; // Force hide
+        }
+    }, 5500); // 5.5 seconds (just after the CSS animation finishes)
+</script>
+
 
     
 <body class="home-mode">
