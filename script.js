@@ -22,11 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. THREE.JS BACKGROUND (3D TUBES) ---
+    // --- 2. THREE.JS BACKGROUND ---
     const canvasContainer = document.getElementById('canvas-container');
+    const isHomePage = !!document.getElementById('hero-logo');
+
     if (canvasContainer) {
         const scene = new THREE.Scene();
-        // Transparent Scene so CSS background shows
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvasContainer.appendChild(renderer.domElement);
         camera.position.z = 20;
 
-        // LIGHTS (Needed for Tubes)
+        // Lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
         const pointLight = new THREE.PointLight(0xffffff, 1);
@@ -47,51 +48,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
 
-        // B. 3D Cylindrical Scribbles (TUBES)
+        // B. Tubes (ONLY ON HOME PAGE)
         const scribbleGroup = new THREE.Group();
-        
-        function getCurve() {
-            const points = [];
-            for (let i = 0; i < 5; i++) {
-                points.push(new THREE.Vector3(
-                    (Math.random() - 0.5) * 50,
-                    (Math.random() - 0.5) * 50,
-                    (Math.random() - 0.5) * 10
-                ));
+        if (isHomePage) {
+            function getCurve() {
+                const points = [];
+                for (let i = 0; i < 5; i++) {
+                    points.push(new THREE.Vector3(
+                        (Math.random() - 0.5) * 50,
+                        (Math.random() - 0.5) * 60, /* Spread vertically */
+                        (Math.random() - 0.5) * 20
+                    ));
+                }
+                return new THREE.CatmullRomCurve3(points);
             }
-            return new THREE.CatmullRomCurve3(points);
-        }
 
-        for(let s=0; s<15; s++) {
-            const path = getCurve();
-            const tubeGeo = new THREE.TubeGeometry(path, 64, 0.4, 8, false); // Thick radius 0.4
-            // Color is light so 'Exclusion' blend mode makes it dark/inverted
-            const tubeMat = new THREE.MeshStandardMaterial({ 
-                color: 0xeeeeee, 
-                roughness: 0.4,
-                metalness: 0.1
-            });
-            const tube = new THREE.Mesh(tubeGeo, tubeMat);
-            scribbleGroup.add(tube);
+            for(let s=0; s<30; s++) { /* More scribbles */
+                const path = getCurve();
+                // Radius 0.05 = Peanut Size / Thin Noodles
+                const tubeGeo = new THREE.TubeGeometry(path, 64, 0.05, 8, false); 
+                const tubeMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x90AEAD, /* Palette Blue */
+                    roughness: 0.4,
+                    metalness: 0.1
+                });
+                const tube = new THREE.Mesh(tubeGeo, tubeMat);
+                scribbleGroup.add(tube);
+            }
+            scene.add(scribbleGroup);
         }
-        scene.add(scribbleGroup);
 
         let scrollY = 0;
         const animateMain = () => {
             requestAnimationFrame(animateMain);
             
-            // Polygon Rotate
             polygon.rotation.y += 0.002;
             
-            // Move Scribbles Up
-            scribbleGroup.position.y = scrollY * 0.05; 
-            scribbleGroup.rotation.z += 0.001;
-            
-            // Gentle Float
-            scribbleGroup.children.forEach((child, i) => {
-                child.rotation.x += 0.002 * (i % 2 === 0 ? 1 : -1);
-                child.rotation.y += 0.002;
-            });
+            if (isHomePage) {
+                // Move Scribbles Up
+                scribbleGroup.position.y = scrollY * 0.05; 
+                scribbleGroup.rotation.z += 0.0005;
+                
+                scribbleGroup.children.forEach((child, i) => {
+                    child.rotation.x += 0.002 * (i % 2 === 0 ? 1 : -1);
+                    child.rotation.y += 0.002;
+                });
+            }
 
             renderer.render(scene, camera);
         };
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO (ROBUST GSAP TIMELINE) ---
+    // --- 3. HERO LOGO (STRICT TOP-LEFT LOGIC) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
@@ -113,15 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logo) {
             const tl = gsap.timeline();
 
-            // STEP 1: Landing Animation (Center Screen)
-            // Starts invisible, scales up to 1. No scroll needed.
+            // 1. LANDING: Center Screen (translate -50%, -50%)
             tl.fromTo(logo, 
-                { opacity: 0, scale: 0.5, y: "-300%" }, 
-                { opacity: 1, scale: 1, y: "-50%", duration: 2.5, ease: "power3.out", delay: 3 }
+                { opacity: 0, scale: 0.5, top: "50%", left: "50%", xPercent: -50, yPercent: -50 }, 
+                { opacity: 1, scale: 1, top: "50%", left: "50%", xPercent: -50, yPercent: -50, duration: 2.5, ease: "power3.out", delay: 3 }
             );
 
-            // STEP 2: Scroll Animation (Center -> Top Left)
-            // Attaches to scrollbar. Moves logo to corner.
+            // 2. SCROLL: Force to Top-Left (Kill center transforms)
             gsap.to(logo, {
                 scrollTrigger: { 
                     trigger: "body", 
@@ -131,9 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 top: "40px",
                 left: "40px",
-                xPercent: 0,
+                xPercent: 0, /* Removes the -50% centering */
                 yPercent: 0,
-                y: 0, /* Reset Y transform */
                 scale: 0.25,
                 color: "#E64833",
                 ease: "power1.out"
@@ -142,8 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. PAGE CONTENT GENERATOR ---
-    const isHomePage = document.getElementById('hero-logo');
-
     if (!isHomePage) {
         if (!document.querySelector('.nav-header')) {
             const header = document.createElement('nav'); 
