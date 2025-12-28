@@ -82,32 +82,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO SHRINK (FIXED LOGIC) ---
+    // --- 3. HERO LOGO SHRINK (FORCED) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
         const logo = document.getElementById("hero-logo");
         if (logo) {
-            const tl = gsap.timeline({
-                scrollTrigger: { 
-                    trigger: "body", 
-                    start: "top top", 
-                    end: "600px top", 
-                    scrub: 1 
+            // Force strict From -> To animation
+            gsap.fromTo(logo, 
+                { 
+                    top: "50%", 
+                    left: "50%", 
+                    xPercent: -50, 
+                    yPercent: -50, 
+                    scale: 1,
+                    color: "#FBE9D0" 
+                },
+                {
+                    scrollTrigger: { 
+                        trigger: "body", 
+                        start: "top top", 
+                        end: "600px top", 
+                        scrub: 1 
+                    },
+                    top: "40px",
+                    left: "40px",
+                    xPercent: 0,
+                    yPercent: 0,
+                    scale: 0.25,
+                    color: "#E64833",
+                    duration: 2,
+                    ease: "power2.out"
                 }
-            });
-
-            // FIX: Shrink vertically but keep centered horizontally
-            tl.to(logo, { 
-                top: "50px",   /* Move to top */
-                left: "50%",   /* Keep centered X */
-                scale: 0.25,   /* Shrink */
-                xPercent: -50, /* Keep centered alignment */
-                yPercent: -50, 
-                color: "#E64833", 
-                duration: 2,
-                ease: "power2.out"
-            });
+            );
         }
     }
 
