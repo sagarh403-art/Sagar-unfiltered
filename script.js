@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. MENU TOGGLE (Universal) ---
+    // --- 1. MENU TOGGLE ---
     const menuBtn = document.getElementById('menu-toggle-btn');
     const menuOverlay = document.getElementById('menu-overlay');
 
@@ -22,82 +22,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. THREE.JS BACKGROUND (With Scribbles) ---
+    // --- 2. THREE.JS BACKGROUND (3D TUBES) ---
     const canvasContainer = document.getElementById('canvas-container');
     if (canvasContainer) {
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x244855, 0.03); 
-
+        // Transparent Scene so CSS background shows
+        
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         canvasContainer.appendChild(renderer.domElement);
-        camera.position.z = 10;
+        camera.position.z = 20;
+
+        // LIGHTS (Needed for Tubes)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
 
         // A. Polygon
         const polyGeo = new THREE.IcosahedronGeometry(4, 1); 
-        const polyMat = new THREE.MeshBasicMaterial({ color: 0x90AEAD, wireframe: true, transparent: true, opacity: 0.3 }); 
+        const polyMat = new THREE.MeshBasicMaterial({ color: 0x90AEAD, wireframe: true, transparent: true, opacity: 0.1 }); 
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
 
-        // B. Sand
-        const sandGeo = new THREE.BufferGeometry();
-        const sandCount = 1000;
-        const posArray = new Float32Array(sandCount * 3);
-        const speedArray = new Float32Array(sandCount); 
-
-        for(let i=0; i<sandCount; i++) {
-            posArray[i*3] = (Math.random() - 0.5) * 60;   
-            posArray[i*3+1] = (Math.random() - 0.5) * 60; 
-            posArray[i*3+2] = (Math.random() - 0.5) * 40; 
-            speedArray[i] = 0.005 + Math.random() * 0.01; 
+        // B. 3D Cylindrical Scribbles (TUBES)
+        const scribbleGroup = new THREE.Group();
+        
+        function getCurve() {
+            const points = [];
+            for (let i = 0; i < 5; i++) {
+                points.push(new THREE.Vector3(
+                    (Math.random() - 0.5) * 50,
+                    (Math.random() - 0.5) * 50,
+                    (Math.random() - 0.5) * 10
+                ));
+            }
+            return new THREE.CatmullRomCurve3(points);
         }
 
-        sandGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const sandMat = new THREE.PointsMaterial({ size: 0.12, color: 0xE64833, transparent: true, opacity: 0.8 }); 
-        const sandSystem = new THREE.Points(sandGeo, sandMat);
-        scene.add(sandSystem);
-
-        // C. Black Scribbles (NEW!)
-        const scribbleGroup = new THREE.Group();
-        for(let s=0; s<20; s++) {
-            const points = [];
-            const segments = 10 + Math.random() * 10;
-            let currentPoint = new THREE.Vector3((Math.random()-0.5)*30, (Math.random()-0.5)*30, (Math.random()-0.5)*10);
-            
-            for(let p=0; p<segments; p++) {
-                points.push(currentPoint.clone());
-                currentPoint.x += (Math.random()-0.5) * 2;
-                currentPoint.y += (Math.random()-0.5) * 2;
-                currentPoint.z += (Math.random()-0.5) * 2;
-            }
-            const scribbleGeo = new THREE.BufferGeometry().setFromPoints(points);
-            const scribbleMat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4 });
-            const scribble = new THREE.LineLoop(scribbleGeo, scribbleMat);
-            scribbleGroup.add(scribble);
+        for(let s=0; s<15; s++) {
+            const path = getCurve();
+            const tubeGeo = new THREE.TubeGeometry(path, 64, 0.4, 8, false); // Thick radius 0.4
+            // Color is light so 'Exclusion' blend mode makes it dark/inverted
+            const tubeMat = new THREE.MeshStandardMaterial({ 
+                color: 0xeeeeee, 
+                roughness: 0.4,
+                metalness: 0.1
+            });
+            const tube = new THREE.Mesh(tubeGeo, tubeMat);
+            scribbleGroup.add(tube);
         }
         scene.add(scribbleGroup);
-
 
         let scrollY = 0;
         const animateMain = () => {
             requestAnimationFrame(animateMain);
+            
+            // Polygon Rotate
             polygon.rotation.y += 0.002;
-            polygon.rotation.x += 0.001;
-            polygon.position.y = scrollY * 0.01; 
-            polygon.material.opacity = Math.max(0, 0.3 - (scrollY * 0.0005));
-
-            // Move Sand
-            const positions = sandSystem.geometry.attributes.position.array;
-            for(let i=0; i<sandCount; i++) {
-                positions[i*3+1] += speedArray[i]; 
-                if(positions[i*3+1] > 30) positions[i*3+1] = -30;
-            }
-            sandSystem.geometry.attributes.position.needsUpdate = true; 
-
-            // Move Scribbles Up on Scroll
-            scribbleGroup.position.y = scrollY * 0.02;
-            scribbleGroup.rotation.y += 0.001;
+            
+            // Move Scribbles Up
+            scribbleGroup.position.y = scrollY * 0.05; 
+            scribbleGroup.rotation.z += 0.001;
+            
+            // Gentle Float
+            scribbleGroup.children.forEach((child, i) => {
+                child.rotation.x += 0.002 * (i % 2 === 0 ? 1 : -1);
+                child.rotation.y += 0.002;
+            });
 
             renderer.render(scene, camera);
         };
@@ -111,38 +105,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO SHRINK (FIXED TOP-LEFT) ---
+    // --- 3. HERO LOGO (ROBUST GSAP TIMELINE) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
         const logo = document.getElementById("hero-logo");
         if (logo) {
-            gsap.fromTo(logo, 
-                { 
-                    top: "50%", 
-                    left: "50%", 
-                    xPercent: -50, 
-                    yPercent: -50, 
-                    scale: 1,
-                    color: "#FBE9D0" 
-                },
-                {
-                    scrollTrigger: { 
-                        trigger: "body", 
-                        start: "top top", 
-                        end: "600px top", 
-                        scrub: 1 
-                    },
-                    top: "40px",
-                    left: "40px",
-                    xPercent: 0,
-                    yPercent: 0,
-                    scale: 0.25,
-                    color: "#E64833",
-                    duration: 2,
-                    ease: "power2.out"
-                }
+            const tl = gsap.timeline();
+
+            // STEP 1: Landing Animation (Center Screen)
+            // Starts invisible, scales up to 1. No scroll needed.
+            tl.fromTo(logo, 
+                { opacity: 0, scale: 0.5, y: "-300%" }, 
+                { opacity: 1, scale: 1, y: "-50%", duration: 2.5, ease: "power3.out", delay: 3 }
             );
+
+            // STEP 2: Scroll Animation (Center -> Top Left)
+            // Attaches to scrollbar. Moves logo to corner.
+            gsap.to(logo, {
+                scrollTrigger: { 
+                    trigger: "body", 
+                    start: "top top", 
+                    end: "500px top", 
+                    scrub: 1 
+                },
+                top: "40px",
+                left: "40px",
+                xPercent: 0,
+                yPercent: 0,
+                y: 0, /* Reset Y transform */
+                scale: 0.25,
+                color: "#E64833",
+                ease: "power1.out"
+            });
         }
     }
 
