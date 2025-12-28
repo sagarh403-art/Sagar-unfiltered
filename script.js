@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvasContainer = document.getElementById('canvas-container');
     if (canvasContainer) {
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x244855, 0.03); // Teal Fog
+        scene.fog = new THREE.FogExp2(0x244855, 0.03); 
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         camera.position.z = 10;
 
         const polyGeo = new THREE.IcosahedronGeometry(4, 1); 
-        const polyMat = new THREE.MeshBasicMaterial({ color: 0x90AEAD, wireframe: true, transparent: true, opacity: 0.3 }); // Muted Blue
+        const polyMat = new THREE.MeshBasicMaterial({ color: 0x90AEAD, wireframe: true, transparent: true, opacity: 0.3 }); 
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         sandGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const sandMat = new THREE.PointsMaterial({ size: 0.12, color: 0xE64833, transparent: true, opacity: 0.8 }); // Orange
+        const sandMat = new THREE.PointsMaterial({ size: 0.12, color: 0xE64833, transparent: true, opacity: 0.8 }); 
         const sandSystem = new THREE.Points(sandGeo, sandMat);
         scene.add(sandSystem);
 
@@ -82,30 +82,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO ANIMATION (FIXED) ---
+    // --- 3. HERO LOGO SHRINK (FIXED LOGIC) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
         const logo = document.getElementById("hero-logo");
         if (logo) {
-            // Note: The CSS 'ufoDrop' animation brings it to center. 
-            // GSAP takes it from center to Top-Left.
-            
             const tl = gsap.timeline({
-                scrollTrigger: { trigger: "body", start: "top top", end: "600px top", scrub: 1 }
+                scrollTrigger: { 
+                    trigger: "body", 
+                    start: "top top", 
+                    end: "600px top", 
+                    scrub: 1 
+                }
             });
 
-            // Force GSAP to recognize the element is centered initially
-            gsap.set(logo, { xPercent: -50, yPercent: -50, top: "50%", left: "50%", scale: 1 });
-
+            // FIX: Shrink vertically but keep centered horizontally
             tl.to(logo, { 
-                top: "40px", 
-                left: "40px", 
-                xPercent: 0, 
-                yPercent: 0, 
-                scale: 0.25, 
-                color: "#E64833", /* Change to Orange on scroll */
-                duration: 2 
+                top: "50px",   /* Move to top */
+                left: "50%",   /* Keep centered X */
+                scale: 0.25,   /* Shrink */
+                xPercent: -50, /* Keep centered alignment */
+                yPercent: -50, 
+                color: "#E64833", 
+                duration: 2,
+                ease: "power2.out"
             });
         }
     }
@@ -125,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isPhotoPage = path.includes("photography") || path.includes("photos");
 
         if (isPhotoPage) {
-            // ... (Photo Code) ...
+            // RESTORED SLIDER LOGIC
             const banner = document.createElement('div'); banner.className = 'banner';
             const slider = document.createElement('div'); slider.className = 'slider';
             const sliderPhotos = [
@@ -146,8 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.appendChild(img); slider.appendChild(item);
             });
             banner.appendChild(slider);
-            document.querySelector('.scroll-container').appendChild(banner);
+            document.querySelector('.scroll-container') ? document.querySelector('.scroll-container').appendChild(banner) : document.body.appendChild(banner);
 
+            // GRID
             const recentPhotos = [
                 { title: "Neon Rain", location: "Tokyo", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" },
                 { title: "Cyber Alley", location: "Seoul", img: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" },
@@ -164,10 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 grid.appendChild(card);
             });
             recentSection.appendChild(grid);
-            document.querySelector('.scroll-container').appendChild(recentSection);
+            document.querySelector('.scroll-container') ? document.querySelector('.scroll-container').appendChild(recentSection) : document.body.appendChild(recentSection);
 
         } else {
-            // ... (Blog Code) ...
+            // BLOGS
             const blogs = [
                 { title: "Digital Realms", desc: "Building worlds.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
                 { title: "Neon Dreams", desc: "Cyberpunk aesthetics.", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
@@ -178,7 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
             blogs.forEach((item, index) => {
                 contentDiv.innerHTML += `<article class="content-item"><div class="content-text"><span style="color:var(--accent-orange); font-weight:bold;">0${index + 1}</span><h2 class="item-title">${item.title}</h2><p>${item.desc}</p></div><div class="content-visual"><img src="${item.img}"></div></article>`;
             });
-            document.querySelector('.scroll-container').appendChild(contentDiv);
+            document.querySelector('.scroll-container') ? document.querySelector('.scroll-container').appendChild(contentDiv) : document.body.appendChild(contentDiv);
+            
             setTimeout(() => { 
                 const items = document.querySelectorAll('.content-item');
                 items.forEach(item => { item.style.opacity = 1; item.style.transition = "opacity 1s ease"; });
