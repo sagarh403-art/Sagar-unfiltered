@@ -16,19 +16,18 @@ body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-fa
 #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; background: radial-gradient(circle at center, #244855, #1a353f); }
 
 /* =========================================
-   1. HERO LOGO (FIXED FOR GSAP SHRINKING)
+   1. HERO LOGO (CLEANED FOR ANIMATION)
    ========================================= */
 .hero-logo {
     position: fixed; 
-    top: 50%; left: 50%; 
-    /* Initial State for GSAP to grab */
-    transform: translate(-50%, -50%) scale(1); 
+    /* Center it perfectly initially */
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
     font-size: 15vw; font-weight: 900; margin: 0; 
     color: var(--text-cream); z-index: 10; pointer-events: none; 
     display: flex; gap: 10px; white-space: nowrap;
     text-shadow: 0 10px 30px rgba(0,0,0,0.3);
     
-    /* UFO Landing Animation */
+    /* UFO Landing Animation (Runs once then stops) */
     animation: ufoLand 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3s backwards;
 }
 
@@ -40,7 +39,34 @@ body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-fa
 .letter { display: inline-block; }
 
 /* =========================================
-   2. PRELOADERS & MENU
+   2. SOCIAL ICONS (NO SHRINKING)
+   ========================================= */
+.social-grid { 
+    display: flex; 
+    gap: 15px; 
+    justify-content: center; 
+    margin-top: 30px; 
+    flex-wrap: wrap; /* Allows wrapping on tiny screens */
+}
+.social-pill { 
+    width: 60px; height: 60px; 
+    border-radius: 50%; 
+    background: rgba(251, 233, 208, 0.1); 
+    display: flex; justify-content: center; align-items: center; 
+    font-size: 1.5rem; color: var(--text-cream); 
+    transition: 0.3s; 
+    border: 1px solid rgba(251, 233, 208, 0.2);
+    
+    /* THE FIX: Stop them from shrinking */
+    flex-shrink: 0; 
+    min-width: 60px;
+    min-height: 60px;
+}
+.social-pill:hover { background: var(--accent-orange); color: var(--text-cream); transform: translateY(-5px); border-color: var(--accent-orange); }
+
+
+/* =========================================
+   3. PRELOADERS & MENU
    ========================================= */
 #preloader {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
@@ -81,41 +107,20 @@ body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-fa
 .menu-item { font-size: 3.5rem; font-weight: 900; color: var(--text-cream); text-decoration: none; transition: 0.3s; }
 .menu-item:hover { color: var(--accent-orange); letter-spacing: 5px; }
 
-/* =========================================
-   3. PAGE LAYOUT FIXES
-   ========================================= */
-.nav-header { position: fixed; top: 30px; left: 30px; z-index: 50; } /* Fixed positioning */
+/* LAYOUT & UI */
+.nav-header { position: fixed; top: 30px; left: 30px; z-index: 50; } 
 .back-btn-round { padding: 10px 30px; border-radius: 50px; background: var(--text-cream); color: var(--bg-color); font-weight: 700; text-decoration: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s; }
 .back-btn-round:hover { transform: scale(1.1); background: var(--accent-orange); color: white; }
 
-/* BLOG SPACING FIX */
-.feed-container { 
-    max-width: 1000px; 
-    margin: 0 auto; 
-    padding: 150px 20px 50px 20px; /* Top padding 150px clears the Home button */
-}
+.feed-container { max-width: 1000px; margin: 0 auto; padding: 150px 20px 50px 20px; }
 
-/* 3D SLIDER RESTORED */
+/* SLIDER & GRID */
 .banner { width: 100%; height: 100vh; text-align: center; overflow: hidden; position: relative; }
-.slider { 
-    position: absolute; width: 200px; height: 250px; 
-    top: 40%; left: calc(50% - 100px); 
-    transform-style: preserve-3d; 
-    transform: perspective(1000px); 
-    animation: autoRun 20s linear infinite; 
-    z-index: 2; 
-}
-@keyframes autoRun { 
-    from { transform: perspective(1000px) rotateX(-10deg) rotateY(0deg); } 
-    to { transform: perspective(1000px) rotateX(-10deg) rotateY(360deg); } 
-}
-.item { 
-    position: absolute; inset: 0 0 0 0; 
-    transform: rotateY(calc( (var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(550px); 
-}
+.slider { position: absolute; width: 200px; height: 250px; top: 40%; left: calc(50% - 100px); transform-style: preserve-3d; transform: perspective(1000px); animation: autoRun 20s linear infinite; z-index: 2; }
+@keyframes autoRun { from { transform: perspective(1000px) rotateX(-10deg) rotateY(0deg); } to { transform: perspective(1000px) rotateX(-10deg) rotateY(360deg); } }
+.item { position: absolute; inset: 0 0 0 0; transform: rotateY(calc( (var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(550px); }
 .item img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 3px solid rgba(251, 233, 208, 0.2); transition: 0.5s; filter: brightness(0.8); }
 
-/* GRID & CARDS */
 .recent-section { position: relative; z-index: 10; padding: 100px 20px; max-width: 1200px; margin: 0 auto; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5)); }
 .section-title { text-align: center; font-size: 3rem; font-weight: 900; color: var(--text-cream); margin-bottom: 50px; letter-spacing: 2px; }
 .recent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
@@ -137,9 +142,6 @@ body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-fa
 .soft-card { background: rgba(135, 79, 65, 0.15); backdrop-filter: blur(20px); padding: 60px; border-radius: 30px; border: 1px solid rgba(144, 174, 173, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.3); max-width: 600px; text-align: center; margin: 20px; }
 h2 { font-size: 3rem; margin-bottom: 20px; background: linear-gradient(to right, var(--text-cream), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 p { font-size: 1.5rem; line-height: 1.6; color: var(--accent-blue); }
-.social-grid { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
-.social-pill { width: 60px; height: 60px; border-radius: 50%; background: rgba(251, 233, 208, 0.1); display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: var(--text-cream); transition: 0.3s; border: 1px solid rgba(251, 233, 208, 0.2); }
-.social-pill:hover { background: var(--accent-orange); color: var(--text-cream); transform: translateY(-5px); border-color: var(--accent-orange); }
 
 .content-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 120px; gap: 50px; opacity: 0; }
 .content-visual img { width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid var(--accent-blue); }
@@ -148,3 +150,4 @@ p { font-size: 1.5rem; line-height: 1.6; color: var(--accent-blue); }
 .content-item:nth-child(odd) { flex-direction: row; }
 .content-item:nth-child(even) { flex-direction: row-reverse; text-align: right; }
 @media (max-width: 768px) { .content-item:nth-child(odd), .content-item:nth-child(even) { flex-direction: column-reverse; text-align: left; } .hero-logo { font-size: 20vw; } .item { transform: rotateY(calc( (var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(300px); } }
+                 
