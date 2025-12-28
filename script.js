@@ -48,25 +48,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
 
-        // B. Tubes (ONLY ON HOME PAGE)
+        // B. "Penne" Tubes (Short & Thick) - ONLY ON HOME
         const scribbleGroup = new THREE.Group();
         if (isHomePage) {
-            function getCurve() {
+            
+            // Function to create SHORT (Penne) curves
+            function getPenneCurve() {
                 const points = [];
-                for (let i = 0; i < 5; i++) {
+                // Start Point (Random location on screen)
+                const startX = (Math.random() - 0.5) * 50;
+                const startY = (Math.random() - 0.5) * 60;
+                const startZ = (Math.random() - 0.5) * 20;
+                
+                // Generate 3 points very close to the start point to make it short
+                for (let i = 0; i < 3; i++) {
                     points.push(new THREE.Vector3(
-                        (Math.random() - 0.5) * 50,
-                        (Math.random() - 0.5) * 60, /* Spread vertically */
-                        (Math.random() - 0.5) * 20
+                        startX + (Math.random() - 0.5) * 5, // Short spread X
+                        startY + (Math.random() - 0.5) * 5, // Short spread Y
+                        startZ + (Math.random() - 0.5) * 2  // Short spread Z
                     ));
                 }
                 return new THREE.CatmullRomCurve3(points);
             }
 
-            for(let s=0; s<30; s++) { /* More scribbles */
-                const path = getCurve();
-                // Radius 0.05 = Peanut Size / Thin Noodles
-                const tubeGeo = new THREE.TubeGeometry(path, 64, 0.05, 8, false); 
+            for(let s=0; s<50; s++) { /* 50 Penne pieces */
+                const path = getPenneCurve();
+                // Radius 0.3 = THICK (Penne style)
+                const tubeGeo = new THREE.TubeGeometry(path, 8, 0.3, 8, false); 
                 const tubeMat = new THREE.MeshStandardMaterial({ 
                     color: 0x90AEAD, /* Palette Blue */
                     roughness: 0.4,
@@ -85,13 +93,13 @@ document.addEventListener('DOMContentLoaded', () => {
             polygon.rotation.y += 0.002;
             
             if (isHomePage) {
-                // Move Scribbles Up
+                // Move Penne Up
                 scribbleGroup.position.y = scrollY * 0.05; 
                 scribbleGroup.rotation.z += 0.0005;
                 
                 scribbleGroup.children.forEach((child, i) => {
-                    child.rotation.x += 0.002 * (i % 2 === 0 ? 1 : -1);
-                    child.rotation.y += 0.002;
+                    child.rotation.x += 0.01; // Spin the penne
+                    child.rotation.y += 0.01;
                 });
             }
 
@@ -115,13 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logo) {
             const tl = gsap.timeline();
 
-            // 1. LANDING: Center Screen (translate -50%, -50%)
+            // 1. LANDING: Center Screen
             tl.fromTo(logo, 
                 { opacity: 0, scale: 0.5, top: "50%", left: "50%", xPercent: -50, yPercent: -50 }, 
                 { opacity: 1, scale: 1, top: "50%", left: "50%", xPercent: -50, yPercent: -50, duration: 2.5, ease: "power3.out", delay: 3 }
             );
 
-            // 2. SCROLL: Force to Top-Left (Kill center transforms)
+            // 2. SCROLL: Force to Top-Left
             gsap.to(logo, {
                 scrollTrigger: { 
                     trigger: "body", 
@@ -131,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 top: "40px",
                 left: "40px",
-                xPercent: 0, /* Removes the -50% centering */
+                xPercent: 0, 
                 yPercent: 0,
                 scale: 0.25,
                 color: "#E64833",
