@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (menuBtn && menuOverlay) {
         menuBtn.addEventListener('click', () => {
-            menuBtn.classList.toggle('open'); // Triggers CSS X animation
+            menuBtn.classList.toggle('open'); // Triggers the X animation
             menuOverlay.classList.toggle('active');
         });
         
@@ -38,15 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
         pointLight.position.set(10, 10, 10);
         scene.add(pointLight);
 
-        // A. PROMINENT ICOSAHEDRON (Interact with SAGAR)
-        const polyGeo = new THREE.IcosahedronGeometry(6, 1); // Increased Size
-        const polyMat = new THREE.MeshStandardMaterial({ 
-            color: 0x00f3ff, // Cyan to pop against background
+        // A. LARGE PROMINENT ICOSAHEDRON
+        const polyGeo = new THREE.IcosahedronGeometry(7, 1); 
+        const polyMat = new THREE.MeshBasicMaterial({ 
+            color: 0x00f3ff, 
             wireframe: true, 
             transparent: true, 
-            opacity: 0.5,
-            emissive: 0x244855,
-            emissiveIntensity: 0.5
+            opacity: 0.15 
         }); 
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
@@ -55,17 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const animateMain = () => {
             requestAnimationFrame(animateMain);
             
-            // Interaction: Rotate Polygon based on scroll
-            polygon.rotation.y += 0.002 + (scrollY * 0.0001);
-            polygon.rotation.x += 0.001;
+            // Rotate based on scroll
+            polygon.rotation.y += 0.002;
+            polygon.rotation.x = scrollY * 0.0005;
             
-            // If Home Page, make it float around the center text
-            if(isHomePage) {
-                // Gentle pulse scale
-                const scale = 1 + Math.sin(Date.now() * 0.001) * 0.1;
-                polygon.scale.set(scale, scale, scale);
-            }
-
             renderer.render(scene, camera);
         };
         animateMain();
@@ -78,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO (FIXED TOP-LEFT MOVEMENT) ---
+    // --- 3. HERO LOGO (BULLETPROOF MOVEMENT) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
@@ -86,15 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logo) {
             const tl = gsap.timeline();
 
-            // 1. LANDING: Center Screen
-            // We set transforms explicitly to ensure start state
+            // STEP 1: LANDING
+            // Start: Invisible, Small, Center
+            // End: Visible, Full Size, Center
             tl.fromTo(logo, 
                 { opacity: 0, scale: 0.5, top: "50%", left: "50%", xPercent: -50, yPercent: -50 }, 
                 { opacity: 1, scale: 1, top: "50%", left: "50%", xPercent: -50, yPercent: -50, duration: 2.5, ease: "power3.out", delay: 3 }
             );
 
-            // 2. SCROLL: Force to Top-Left
-            // We animate 'top' and 'left' to fixed pixels, and kill the % transforms
+            // STEP 2: SCROLL TO CORNER
+            // We force 'xPercent' and 'yPercent' to 0 so it aligns to the top-left pixel coordinates
             gsap.to(logo, {
                 scrollTrigger: { 
                     trigger: "body", 
@@ -104,8 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 top: "40px",
                 left: "40px",
-                xPercent: 0, // IMPORTANT: Resets horizontal center
-                yPercent: 0, // IMPORTANT: Resets vertical center
+                xPercent: 0, 
+                yPercent: 0,
                 scale: 0.25,
                 color: "#E64833",
                 ease: "power1.out"
