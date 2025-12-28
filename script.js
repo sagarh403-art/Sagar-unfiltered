@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Wait for EVERYTHING to load (images, fonts, etc) to ensure accurate logo positioning
+window.onload = () => {
     
     // --- 1. MENU TOGGLE ---
     const menuBtn = document.getElementById('menu-toggle-btn');
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. THREE.JS BACKGROUND ---
+    // --- 2. THREE.JS BACKGROUND (THE ENDLESS GRID) ---
     const canvasContainer = document.getElementById('canvas-container');
     const isHomePage = !!document.getElementById('hero-logo');
 
@@ -28,77 +29,57 @@ document.addEventListener('DOMContentLoaded', () => {
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         canvasContainer.appendChild(renderer.domElement);
-        camera.position.z = 20;
+        
+        // Camera Position for the Grid View
+        camera.position.set(0, 5, 20);
+        camera.rotation.x = -0.2;
 
-        // Lights (Needed for the Boy)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-        dirLight.position.set(5, 10, 7);
-        scene.add(dirLight);
 
-        // A. THE SUBTLE ICOSAHEDRON (Personality Boost)
-        const polyGeo = new THREE.IcosahedronGeometry(7, 0); 
-        const polyMat = new THREE.MeshStandardMaterial({ 
-            color: 0x00f3ff, 
+        // A. THE RETRO GRID (Infinite Floor)
+        // We create two grids to loop them
+        const gridHelper = new THREE.GridHelper(200, 50, 0xE64833, 0x244855); // Orange Center, Teal Lines
+        gridHelper.position.y = -5;
+        scene.add(gridHelper);
+        
+        const gridHelper2 = new THREE.GridHelper(200, 50, 0xE64833, 0x244855);
+        gridHelper2.position.y = -5;
+        gridHelper2.position.z = -200; // Place behind the first one
+        scene.add(gridHelper2);
+
+        // B. THE ICOSAHEDRON (Floating "Sun")
+        const polyGeo = new THREE.IcosahedronGeometry(6, 1); 
+        const polyMat = new THREE.MeshBasicMaterial({ 
+            color: 0x90AEAD, 
             wireframe: true, 
             transparent: true, 
-            opacity: 0.15,
-            emissive: 0x00f3ff,
-            emissiveIntensity: 0.2
+            opacity: 0.1 
         }); 
         const polygon = new THREE.Mesh(polyGeo, polyMat);
+        polygon.position.set(0, 5, -30); // Float in the distance
         scene.add(polygon);
-
-        // B. THE 3D BOY (Voxel Style) - ONLY ON HOME PAGE
-        const boyGroup = new THREE.Group();
-        if (isHomePage) {
-            // Head
-            const headGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
-            const headMat = new THREE.MeshStandardMaterial({ color: 0xFBE9D0 }); // Cream
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 2;
-            boyGroup.add(head);
-
-            // Eyes
-            const eyeGeo = new THREE.PlaneGeometry(0.6, 0.6);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x244855 }); // Dark Teal
-            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeL.position.set(-0.6, 2, 1.3);
-            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-            eyeR.position.set(0.6, 2, 1.3);
-            boyGroup.add(eyeL); boyGroup.add(eyeR);
-
-            // Body
-            const bodyGeo = new THREE.BoxGeometry(3, 3, 1.5);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xE64833 }); // Orange
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = -1;
-            boyGroup.add(body);
-
-            // Position the Boy at Top Center
-            boyGroup.position.set(0, 8, 0); 
-            boyGroup.rotation.y = 0.2; // Slight turn
-            scene.add(boyGroup);
-        }
 
         let scrollY = 0;
         const animateMain = () => {
             requestAnimationFrame(animateMain);
             
-            // 1. Polygon: Subtle Scroll Interaction
-            polygon.rotation.y += 0.002; 
-            polygon.rotation.x = scrollY * 0.00005; // Much less sensitive
-            
-            // 2. Boy Animation (Wave)
             if (isHomePage) {
-                boyGroup.rotation.z = Math.sin(Date.now() * 0.002) * 0.05; // Gentle sway
-                boyGroup.position.y = 8 + Math.sin(Date.now() * 0.001) * 0.2; // Float up/down
-                
-                // Disappear on scroll
-                // We use simple math here for performance, or GSAP below
-                const fade = Math.max(0, 1 - scrollY / 300);
-                boyGroup.scale.set(fade, fade, fade);
+                // 1. Move Grid towards camera
+                gridHelper.position.z += 0.2;
+                gridHelper2.position.z += 0.2;
+
+                // Loop the grids
+                if (gridHelper.position.z >= 200) gridHelper.position.z = -200;
+                if (gridHelper2.position.z >= 200) gridHelper2.position.z = -200;
+
+                // 2. Rotate Polygon
+                polygon.rotation.y += 0.005;
+                polygon.rotation.x += 0.002;
+            } else {
+                // Simpler animation for inner pages
+                polygon.rotation.y += 0.002;
             }
 
             renderer.render(scene, camera);
@@ -113,112 +94,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO (FIXED TOP-LEFT MOVEMENT) ---
+    // --- 3. HERO LOGO (GSAP - FIXED LOGIC) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
         const logo = document.getElementById("hero-logo");
         if (logo) {
+            
+            // Explicitly set initial state via GSAP to ensure control
+            gsap.set(logo, { 
+                top: "50%", 
+                left: "50%", 
+                xPercent: -50, 
+                yPercent: -50, 
+                scale: 1,
+                opacity: 0
+            });
+
             const tl = gsap.timeline();
 
-            // 1. Landing: Center
-            tl.fromTo(logo, 
-                { opacity: 0, scale: 0.5, top: "50%", left: "50%", xPercent: -50, yPercent: -50 }, 
-                { opacity: 1, scale: 1, top: "50%", left: "50%", xPercent: -50, yPercent: -50, duration: 2.5, ease: "power3.out", delay: 3 }
-            );
+            // 1. FADE IN
+            tl.to(logo, { opacity: 1, duration: 2, delay: 3 });
 
-            // 2. Scroll: Corner
+            // 2. SCROLL ANIMATION
             gsap.to(logo, {
                 scrollTrigger: { 
                     trigger: "body", 
                     start: "top top", 
                     end: "500px top", 
-                    scrub: 0.5 
+                    scrub: 1 
                 },
+                // Final Position
                 top: "40px",
                 left: "40px",
+                // Remove centering offsets
                 xPercent: 0, 
                 yPercent: 0,
+                // Shrink and Color
                 scale: 0.25,
                 color: "#E64833",
-                ease: "power1.out"
+                ease: "none" // Linear movement is smoother for scrub
             });
         }
     }
-
-    // --- 4. PAGE CONTENT GENERATOR ---
-    if (!isHomePage) {
-        if (!document.querySelector('.nav-header')) {
-            const header = document.createElement('nav'); 
-            header.className = 'nav-header';
-            header.innerHTML = `<a href="index.html" class="back-btn-round">← HOME</a>`;
-            document.body.prepend(header);
-        }
-
-        const path = window.location.pathname;
-        const isPhotoPage = path.includes("photography") || path.includes("photos");
-
-        if (isPhotoPage) {
-            // SLIDER
-            const banner = document.createElement('div'); banner.className = 'banner';
-            const slider = document.createElement('div'); slider.className = 'slider';
-            const sliderPhotos = [
-                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
-                "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80",
-                "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80",
-                "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
-                "https://images.unsplash.com/photo-1558655146-d09347e0c766?w=800&q=80",
-                "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80",
-                "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=800&q=80",
-                "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80"
-            ];
-            slider.style.setProperty('--quantity', sliderPhotos.length);
-            sliderPhotos.forEach((url, index) => {
-                const item = document.createElement('div'); item.className = 'item';
-                item.style.setProperty('--position', index + 1);
-                const img = document.createElement('img'); img.src = url;
-                item.appendChild(img); slider.appendChild(item);
-            });
-            banner.appendChild(slider);
-            document.querySelector('.scroll-container') ? document.querySelector('.scroll-container').appendChild(banner) : document.body.appendChild(banner);
-
-            // GRID
-            const recentPhotos = [
-                { title: "Neon Rain", location: "Tokyo", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" },
-                { title: "Cyber Alley", location: "Seoul", img: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" },
-                { title: "Void", location: "Berlin", img: "https://images.unsplash.com/photo-1486744360400-1b8a11ea8416?w=800&q=80" },
-                { title: "Market", location: "Hong Kong", img: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=800&q=80" }
-            ];
-            const recentSection = document.createElement('div'); recentSection.className = 'recent-section';
-            const title = document.createElement('h2'); title.className = 'section-title'; title.innerText = "RECENT DROPS"; recentSection.appendChild(title);
-            const grid = document.createElement('div'); grid.className = 'recent-grid';
-            recentPhotos.forEach(photo => {
-                const card = document.createElement('div'); card.className = 'recent-card';
-                card.onclick = function() { this.classList.toggle('active'); };
-                card.innerHTML = `<img src="${photo.img}" class="recent-img"><div class="photo-info"><h3 class="photo-title">${photo.title}</h3><div class="photo-loc"><i class="fa-solid fa-location-dot"></i> ${photo.location}</div></div>`;
-                grid.appendChild(card);
-            });
-            recentSection.appendChild(grid);
-            document.querySelector('.scroll-container') ? document.querySelector('.scroll-container').appendChild(recentSection) : document.body.appendChild(recentSection);
-
-        } else {
-            // BLOGS
-            const blogs = [
-                { title: "Digital Realms", desc: "Building worlds.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
-                { title: "Neon Dreams", desc: "Cyberpunk aesthetics.", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
-                { title: "Geometric Art", desc: "Math in motion.", img: "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80" },
-                { title: "Fluid UI", desc: "Interfaces that breathe.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" }
-            ];
-            const contentDiv = document.createElement('div'); contentDiv.className = 'feed-container';
-            blogs.forEach((item, index) => {
-                contentDiv.innerHTML += `<article class="content-item"><div class="content-text"><span style="color:var(--accent-orange); font-weight:bold;">0${index + 1}</span><h2 class="item-title">${item.title}</h2><p>${item.desc}</p></div><div class="content-visual"><img src="${item.img}"></div></article>`;
-            });
-            document.querySelector('.scroll-container') ? document.querySelector('.scroll-container').appendChild(contentDiv) : document.body.appendChild(contentDiv);
-            
-            setTimeout(() => { 
-                const items = document.querySelectorAll('.content-item');
-                items.forEach(item => { item.style.opacity = 1; item.style.transition = "opacity 1s ease"; });
-            }, 500);
-        }
-    }
-});
+};
