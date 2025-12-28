@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. MENU TOGGLE (Stylized X) ---
+    // --- 1. MENU TOGGLE ---
     const menuBtn = document.getElementById('menu-toggle-btn');
     const menuOverlay = document.getElementById('menu-overlay');
 
     if (menuBtn && menuOverlay) {
         menuBtn.addEventListener('click', () => {
-            menuBtn.classList.toggle('open'); // Triggers the X animation
+            menuBtn.classList.toggle('open');
             menuOverlay.classList.toggle('active');
         });
         
@@ -24,39 +24,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (canvasContainer) {
         const scene = new THREE.Scene();
-        
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         canvasContainer.appendChild(renderer.domElement);
         camera.position.z = 20;
 
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        // Lights (Needed for the Boy)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xffffff, 1);
-        pointLight.position.set(10, 10, 10);
-        scene.add(pointLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
 
-        // A. LARGE PROMINENT ICOSAHEDRON
-        const polyGeo = new THREE.IcosahedronGeometry(7, 1); 
-        const polyMat = new THREE.MeshBasicMaterial({ 
+        // A. THE SUBTLE ICOSAHEDRON (Personality Boost)
+        const polyGeo = new THREE.IcosahedronGeometry(7, 0); 
+        const polyMat = new THREE.MeshStandardMaterial({ 
             color: 0x00f3ff, 
             wireframe: true, 
             transparent: true, 
-            opacity: 0.15 
+            opacity: 0.15,
+            emissive: 0x00f3ff,
+            emissiveIntensity: 0.2
         }); 
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
+
+        // B. THE 3D BOY (Voxel Style) - ONLY ON HOME PAGE
+        const boyGroup = new THREE.Group();
+        if (isHomePage) {
+            // Head
+            const headGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xFBE9D0 }); // Cream
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 2;
+            boyGroup.add(head);
+
+            // Eyes
+            const eyeGeo = new THREE.PlaneGeometry(0.6, 0.6);
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x244855 }); // Dark Teal
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.6, 2, 1.3);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.6, 2, 1.3);
+            boyGroup.add(eyeL); boyGroup.add(eyeR);
+
+            // Body
+            const bodyGeo = new THREE.BoxGeometry(3, 3, 1.5);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xE64833 }); // Orange
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = -1;
+            boyGroup.add(body);
+
+            // Position the Boy at Top Center
+            boyGroup.position.set(0, 8, 0); 
+            boyGroup.rotation.y = 0.2; // Slight turn
+            scene.add(boyGroup);
+        }
 
         let scrollY = 0;
         const animateMain = () => {
             requestAnimationFrame(animateMain);
             
-            // Rotate based on scroll
-            polygon.rotation.y += 0.002;
-            polygon.rotation.x = scrollY * 0.0005;
+            // 1. Polygon: Subtle Scroll Interaction
+            polygon.rotation.y += 0.002; 
+            polygon.rotation.x = scrollY * 0.00005; // Much less sensitive
             
+            // 2. Boy Animation (Wave)
+            if (isHomePage) {
+                boyGroup.rotation.z = Math.sin(Date.now() * 0.002) * 0.05; // Gentle sway
+                boyGroup.position.y = 8 + Math.sin(Date.now() * 0.001) * 0.2; // Float up/down
+                
+                // Disappear on scroll
+                // We use simple math here for performance, or GSAP below
+                const fade = Math.max(0, 1 - scrollY / 300);
+                boyGroup.scale.set(fade, fade, fade);
+            }
+
             renderer.render(scene, camera);
         };
         animateMain();
@@ -69,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO (BULLETPROOF MOVEMENT) ---
+    // --- 3. HERO LOGO (FIXED TOP-LEFT MOVEMENT) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
@@ -77,22 +121,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logo) {
             const tl = gsap.timeline();
 
-            // STEP 1: LANDING
-            // Start: Invisible, Small, Center
-            // End: Visible, Full Size, Center
+            // 1. Landing: Center
             tl.fromTo(logo, 
                 { opacity: 0, scale: 0.5, top: "50%", left: "50%", xPercent: -50, yPercent: -50 }, 
                 { opacity: 1, scale: 1, top: "50%", left: "50%", xPercent: -50, yPercent: -50, duration: 2.5, ease: "power3.out", delay: 3 }
             );
 
-            // STEP 2: SCROLL TO CORNER
-            // We force 'xPercent' and 'yPercent' to 0 so it aligns to the top-left pixel coordinates
+            // 2. Scroll: Corner
             gsap.to(logo, {
                 scrollTrigger: { 
                     trigger: "body", 
                     start: "top top", 
                     end: "500px top", 
-                    scrub: 1 
+                    scrub: 0.5 
                 },
                 top: "40px",
                 left: "40px",
