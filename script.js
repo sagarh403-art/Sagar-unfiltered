@@ -1,6 +1,74 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. MENU TOGGLE LOGIC ---
+
+    // ==========================================
+    // 0. SMART PRELOADER SYSTEM
+    // ==========================================
+    const path = window.location.pathname;
+    const isBlog = path.includes('blog');
+    const isPhoto = path.includes('photo');
+    const isHome = !isBlog && !isPhoto; // Fallback for index or root
+
+    // Create Preloader Container
+    const preloader = document.createElement('div');
+    preloader.id = 'preloader';
+    document.body.prepend(preloader);
+
+    // 1. INJECT SPECIFIC HTML BASED ON PAGE
+    if (isHome) {
+        // HOME: 8-BIT 'S'
+        preloader.innerHTML = `<div class="pixel-s"></div>`;
+    } else if (isBlog) {
+        // BLOG: PENCIL & PAPER
+        preloader.innerHTML = `
+            <div class="paper-sheet">
+                <div class="blog-text">BLOG</div>
+                <div class="pixel-pencil"></div>
+            </div>`;
+    } else if (isPhoto) {
+        // PHOTO: CAMERA & FLASH
+        const flashOverlay = document.createElement('div');
+        flashOverlay.className = 'flash-overlay';
+        document.body.appendChild(flashOverlay);
+
+        preloader.innerHTML = `
+            <div class="pixel-camera">
+                <div class="flash-bulb"></div>
+                <div class="lens"></div>
+            </div>`;
+    }
+
+    // 2. TIMING & REMOVAL LOGIC
+    const loadTime = 2500; // 2.5s for animation to play out
+
+    setTimeout(() => {
+        // A. Trigger Visual Effects specific to page
+        if (isPhoto) {
+            document.querySelector('.pixel-camera').classList.add('snap');
+            document.querySelector('.flash-overlay').classList.add('snap');
+            setTimeout(() => document.querySelector('.flash-overlay').remove(), 1000);
+        }
+
+        // B. Zoom Out Reveal
+        preloader.classList.add('zoomed-out');
+
+        // C. Clean up DOM
+        setTimeout(() => {
+            preloader.remove();
+            
+            // D. TRIGGER HOME PAGE UFO LANDING (Only on Home)
+            if (isHome) {
+                const logo = document.getElementById('hero-logo');
+                if(logo) logo.classList.add('landed');
+            }
+
+        }, 800); // Wait for zoom transition
+
+    }, loadTime);
+
+
+    // ==========================================
+    // 1. MENU TOGGLE LOGIC (FIXED)
+    // ==========================================
     const menuBtn = document.getElementById('menu-toggle-btn');
     const menuOverlay = document.getElementById('menu-overlay');
 
@@ -22,11 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. THREE.JS BACKGROUND (SAND + POLYGON) ---
+    // ==========================================
+    // 2. THREE.JS BACKGROUND
+    // ==========================================
     const canvasContainer = document.getElementById('canvas-container');
     if (canvasContainer) {
         const scene = new THREE.Scene();
-        // Fog color matched to Deep Teal (#244855)
         scene.fog = new THREE.FogExp2(0x244855, 0.03);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -35,13 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
         canvasContainer.appendChild(renderer.domElement);
         camera.position.z = 10;
 
-        // A. Polygon - Muted Blue (#90AEAD)
+        // Polygon
         const polyGeo = new THREE.IcosahedronGeometry(4, 1); 
         const polyMat = new THREE.MeshBasicMaterial({ color: 0x90AEAD, wireframe: true, transparent: true, opacity: 0.3 });
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
 
-        // B. Infinite Sand - Vintage Orange (#E64833)
+        // Sand
         const sandGeo = new THREE.BufferGeometry();
         const sandCount = 1000;
         const posArray = new Float32Array(sandCount * 3);
@@ -55,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         sandGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        // Sand color updated to #E64833
         const sandMat = new THREE.PointsMaterial({ size: 0.12, color: 0xE64833, transparent: true, opacity: 0.8 });
         const sandSystem = new THREE.Points(sandGeo, sandMat);
         scene.add(sandSystem);
@@ -63,21 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let scrollY = 0;
         const animateMain = () => {
             requestAnimationFrame(animateMain);
-
-            // Polygon fades on scroll
             polygon.rotation.y += 0.002;
             polygon.rotation.x += 0.001;
             polygon.position.y = scrollY * 0.01; 
             polygon.material.opacity = Math.max(0, 0.3 - (scrollY * 0.0005));
 
-            // Sand moves infinitely
             const positions = sandSystem.geometry.attributes.position.array;
             for(let i=0; i<sandCount; i++) {
                 positions[i*3+1] += speedArray[i]; 
                 if(positions[i*3+1] > 30) positions[i*3+1] = -30;
             }
             sandSystem.geometry.attributes.position.needsUpdate = true; 
-
             renderer.render(scene, camera);
         };
         animateMain();
@@ -90,30 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. SAGAR ANIMATION (GSAP) ---
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-        
-        const logo = document.getElementById("hero-logo");
-        if (logo) {
-            const letters = document.querySelectorAll('.letter');
-            const tl = gsap.timeline({
-                scrollTrigger: { trigger: "body", start: "top top", end: "600px top", scrub: 1 }
-            });
-
-            // Animate between Muted Blue (#90AEAD) and Vintage Orange (#E64833)
-            tl.to(letters, { color: (i) => i % 2 === 0 ? "#90AEAD" : "#E64833", stagger: 0.1, duration: 1 })
-              .to(letters, { color: "#FBE9D0", duration: 1 }) // Back to Cream
-              .to(logo, { top: "40px", left: "40px", scale: 0.25, xPercent: 0, yPercent: 0, transformOrigin: "top left", position: "fixed", duration: 2 });
-        }
-    }
-
-    // --- 4. PAGE CONTENT GENERATOR (Blogs/Photos) ---
-    const isHomePage = document.getElementById('hero-logo');
-
-    if (!isHomePage) {
-        
-        // Add Back Button
+    // ==========================================
+    // 3. GENERATE PAGE CONTENT
+    // ==========================================
+    if (!isHome) {
         if (!document.querySelector('.nav-header')) {
             const header = document.createElement('nav'); 
             header.className = 'nav-header';
@@ -121,16 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.prepend(header);
         }
 
-        const path = window.location.pathname;
-        const isPhotoPage = path.includes("photography") || path.includes("photos");
-
-        // PHOTOGRAPHY PAGE
-        if (isPhotoPage) {
-            const banner = document.createElement('div');
-            banner.className = 'banner';
-            const slider = document.createElement('div');
-            slider.className = 'slider';
-            
+        if (isPhoto) {
+            const banner = document.createElement('div'); banner.className = 'banner';
+            const slider = document.createElement('div'); slider.className = 'slider';
             const sliderPhotos = [
                 "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
                 "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80",
@@ -151,12 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
             banner.appendChild(slider);
             document.querySelector('.scroll-container').appendChild(banner);
 
-            // Recent Grid
             const recentPhotos = [
-                { title: "Neon Rain", location: "Tokyo, Japan", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" },
-                { title: "Cyber Alley", location: "Seoul, Korea", img: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" },
-                { title: "Void Structure", location: "Berlin, Germany", img: "https://images.unsplash.com/photo-1486744360400-1b8a11ea8416?w=800&q=80" },
-                { title: "Night Market", location: "Hong Kong", img: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=800&q=80" }
+                { title: "Neon Rain", location: "Tokyo", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" },
+                { title: "Cyber Alley", location: "Seoul", img: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" },
+                { title: "Void", location: "Berlin", img: "https://images.unsplash.com/photo-1486744360400-1b8a11ea8416?w=800&q=80" },
+                { title: "Market", location: "Hong Kong", img: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=800&q=80" }
             ];
             const recentSection = document.createElement('div'); recentSection.className = 'recent-section';
             const title = document.createElement('h2'); title.className = 'section-title'; title.innerText = "RECENT DROPS"; recentSection.appendChild(title);
@@ -169,23 +205,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             recentSection.appendChild(grid);
             document.querySelector('.scroll-container').appendChild(recentSection);
-        } 
-        
-        // BLOGS PAGE
-        else {
+        } else {
             const blogs = [
-                { title: "Digital Realms", desc: "Building worlds with code.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
-                { title: "Neon Dreams", desc: "The aesthetics of cyberpunk.", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
-                { title: "Geometric Art", desc: "Mathematics in motion.", img: "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80" },
+                { title: "Digital Realms", desc: "Building worlds.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
+                { title: "Neon Dreams", desc: "Cyberpunk aesthetics.", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
+                { title: "Geometric Art", desc: "Math in motion.", img: "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80" },
                 { title: "Fluid UI", desc: "Interfaces that breathe.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" }
             ];
-
             const contentDiv = document.createElement('div'); contentDiv.className = 'feed-container';
             blogs.forEach((item, index) => {
                 contentDiv.innerHTML += `<article class="content-item"><div class="content-text"><span style="color:var(--accent-orange); font-weight:bold;">0${index + 1}</span><h2 class="item-title">${item.title}</h2><p>${item.desc}</p></div><div class="content-visual"><img src="${item.img}"></div></article>`;
             });
             document.querySelector('.scroll-container').appendChild(contentDiv);
-            setTimeout(() => { if(typeof gsap !== 'undefined') gsap.utils.toArray('.content-item').forEach(item => gsap.to(item, { opacity: 1, duration: 1, scrollTrigger: { trigger: item, start: "top 85%" } })); }, 100);
+            setTimeout(() => { 
+                const items = document.querySelectorAll('.content-item');
+                items.forEach(item => { item.style.opacity = 1; item.style.transition = "opacity 1s ease"; });
+            }, 500);
         }
     }
 });
