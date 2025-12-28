@@ -2,7 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
-    /* PROMETHEUS PALETTE */
     --bg-color: #244855;
     --accent-orange: #E64833;
     --accent-blue: #90AEAD;
@@ -12,43 +11,43 @@
 
 body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-family: 'Outfit', sans-serif; overflow-x: hidden; }
 
-/* 3D CANVAS */
-#canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; background: radial-gradient(circle at center, #244855, #1a353f); }
+/* --- 3D CANVAS (NOW ON TOP FOR OVERLAP EFFECT) --- */
+#canvas-container { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
+    z-index: 20; /* ON TOP OF EVERYTHING */
+    pointer-events: none; /* Let clicks pass through */
+    mix-blend-mode: exclusion; /* This creates the color inversion effect */
+}
 
-/* =========================================
-   1. HERO LOGO (FIXED ANIMATION)
-   ========================================= */
+/* --- BACKGROUND GRADIENT (Separate from Canvas now) --- */
+body::before {
+    content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, #244855, #1a353f);
+    z-index: -1;
+}
+
+/* --- HERO LOGO (GSAP CONTROLLED ONLY) --- */
 .hero-logo {
     position: fixed; 
     top: 50%; left: 50%; 
-    /* Start exactly where the CSS animation ends */
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* Center Default */
     font-size: 15vw; font-weight: 900; margin: 0; 
-    color: var(--text-cream); z-index: 10; pointer-events: none; 
+    color: var(--text-cream); 
+    z-index: 10; /* Below Canvas, Above Background */
+    pointer-events: none; 
     display: flex; gap: 10px; white-space: nowrap;
-    text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    
-    /* UFO Landing: Starts invisible/high, lands at center */
-    animation: ufoLand 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3s backwards;
+    opacity: 0; /* JS will fade it in */
 }
-
-@keyframes ufoLand {
-    from { transform: translate(-50%, -300%) scale(0.5); opacity: 0; }
-    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
 .letter { display: inline-block; }
 
-/* =========================================
-   2. MENU (FIXED Z-INDEX)
-   ========================================= */
+/* --- MENU (HIGHEST PRIORITY) --- */
 .menu-btn { 
     position: fixed; top: 30px; right: 30px; 
     background: rgba(251, 233, 208, 0.1); color: var(--text-cream); 
     border: 1px solid var(--accent-blue); padding: 15px 30px; border-radius: 50px; 
     font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1rem; 
     cursor: pointer; 
-    z-index: 100000; /* MAX PRIORITY */
+    z-index: 100000; pointer-events: auto; /* Clickable */
     backdrop-filter: blur(10px); transition: 0.3s; display: flex; align-items: center; gap: 10px; 
 }
 .menu-btn:hover { background: var(--accent-orange); border-color: var(--accent-orange); transform: scale(1.05); }
@@ -56,18 +55,19 @@ body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-fa
 .menu-overlay { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(36, 72, 85, 0.98); 
-    z-index: 99999; /* Just below button */
+    z-index: 99999; 
     display: flex; justify-content: center; align-items: center; 
     opacity: 0; visibility: hidden; clip-path: circle(0% at 100% 0%); 
     transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1); 
+    pointer-events: auto;
 }
 .menu-overlay.active { opacity: 1; visibility: visible; clip-path: circle(150% at 100% 0%); }
 
-/* PRELOADERS & REST */
+/* --- PRELOADERS --- */
 #preloader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 100001; display: flex; justify-content: center; align-items: center; flex-direction: column; animation: loaderVanish 0.5s ease 3s forwards; pointer-events: all; }
 @keyframes loaderVanish { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(3); visibility: hidden; pointer-events: none; } }
 
-/* PIXEL ART (S, Pencil, Camera) */
+/* PIXEL ART */
 .pixel-s { font-family: 'Press Start 2P', cursive; font-size: 150px; color: var(--accent-orange); text-shadow: 5px 5px 0px var(--accent-brown); animation: spinGlitch 0.5s infinite; }
 @keyframes spinGlitch { 0% { transform: skew(0deg); } 20% { transform: skew(-10deg); text-shadow: -5px 5px 0 var(--accent-blue); } 40% { transform: skew(10deg); text-shadow: 5px -5px 0 var(--accent-brown); } 80% { transform: scale(1.1); } 100% { transform: skew(0deg); } }
 
@@ -87,12 +87,9 @@ body { margin: 0; background: var(--bg-color); color: var(--text-cream); font-fa
 /* LAYOUT */
 .nav-header { position: fixed; top: 30px; left: 30px; z-index: 50; } 
 .back-btn-round { padding: 10px 30px; border-radius: 50px; background: var(--text-cream); color: var(--bg-color); font-weight: 700; text-decoration: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s; }
-.menu-links { display: flex; flex-direction: column; text-align: center; gap: 20px; }
-.menu-item { font-size: 3.5rem; font-weight: 900; color: var(--text-cream); text-decoration: none; transition: 0.3s; }
-.menu-item:hover { color: var(--accent-orange); letter-spacing: 5px; }
-
 .feed-container { max-width: 1000px; margin: 0 auto; padding: 150px 20px 50px 20px; }
-.scroll-container { position: relative; z-index: 2; width: 100%; }
+.scroll-container { position: relative; z-index: 5; width: 100%; pointer-events: none; } /* Allow overlap clicks */
+.scroll-container > * { pointer-events: auto; } /* Re-enable clicks on content */
 
 /* SLIDER & GRID */
 .banner { width: 100%; height: 100vh; text-align: center; overflow: hidden; position: relative; }
@@ -132,3 +129,4 @@ p { font-size: 1.5rem; line-height: 1.6; color: var(--accent-blue); }
 .content-item:nth-child(odd) { flex-direction: row; }
 .content-item:nth-child(even) { flex-direction: row-reverse; text-align: right; }
 @media (max-width: 768px) { .content-item:nth-child(odd), .content-item:nth-child(even) { flex-direction: column-reverse; text-align: left; } .hero-logo { font-size: 20vw; } .item { transform: rotateY(calc( (var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(300px); } }
+                               
