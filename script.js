@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. MENU TOGGLE ---
+    // --- 1. MENU TOGGLE (Universal) ---
     const menuBtn = document.getElementById('menu-toggle-btn');
     const menuOverlay = document.getElementById('menu-overlay');
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. THREE.JS BACKGROUND ---
+    // --- 2. THREE.JS BACKGROUND (With Scribbles) ---
     const canvasContainer = document.getElementById('canvas-container');
     if (canvasContainer) {
         const scene = new THREE.Scene();
@@ -34,11 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         canvasContainer.appendChild(renderer.domElement);
         camera.position.z = 10;
 
+        // A. Polygon
         const polyGeo = new THREE.IcosahedronGeometry(4, 1); 
         const polyMat = new THREE.MeshBasicMaterial({ color: 0x90AEAD, wireframe: true, transparent: true, opacity: 0.3 }); 
         const polygon = new THREE.Mesh(polyGeo, polyMat);
         scene.add(polygon);
 
+        // B. Sand
         const sandGeo = new THREE.BufferGeometry();
         const sandCount = 1000;
         const posArray = new Float32Array(sandCount * 3);
@@ -56,6 +58,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const sandSystem = new THREE.Points(sandGeo, sandMat);
         scene.add(sandSystem);
 
+        // C. Black Scribbles (NEW!)
+        const scribbleGroup = new THREE.Group();
+        for(let s=0; s<20; s++) {
+            const points = [];
+            const segments = 10 + Math.random() * 10;
+            let currentPoint = new THREE.Vector3((Math.random()-0.5)*30, (Math.random()-0.5)*30, (Math.random()-0.5)*10);
+            
+            for(let p=0; p<segments; p++) {
+                points.push(currentPoint.clone());
+                currentPoint.x += (Math.random()-0.5) * 2;
+                currentPoint.y += (Math.random()-0.5) * 2;
+                currentPoint.z += (Math.random()-0.5) * 2;
+            }
+            const scribbleGeo = new THREE.BufferGeometry().setFromPoints(points);
+            const scribbleMat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4 });
+            const scribble = new THREE.LineLoop(scribbleGeo, scribbleMat);
+            scribbleGroup.add(scribble);
+        }
+        scene.add(scribbleGroup);
+
+
         let scrollY = 0;
         const animateMain = () => {
             requestAnimationFrame(animateMain);
@@ -64,12 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
             polygon.position.y = scrollY * 0.01; 
             polygon.material.opacity = Math.max(0, 0.3 - (scrollY * 0.0005));
 
+            // Move Sand
             const positions = sandSystem.geometry.attributes.position.array;
             for(let i=0; i<sandCount; i++) {
                 positions[i*3+1] += speedArray[i]; 
                 if(positions[i*3+1] > 30) positions[i*3+1] = -30;
             }
             sandSystem.geometry.attributes.position.needsUpdate = true; 
+
+            // Move Scribbles Up on Scroll
+            scribbleGroup.position.y = scrollY * 0.02;
+            scribbleGroup.rotation.y += 0.001;
+
             renderer.render(scene, camera);
         };
         animateMain();
@@ -82,13 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. HERO LOGO SHRINK (FORCED) ---
+    // --- 3. HERO LOGO SHRINK (FIXED TOP-LEFT) ---
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
         const logo = document.getElementById("hero-logo");
         if (logo) {
-            // Force strict From -> To animation
             gsap.fromTo(logo, 
                 { 
                     top: "50%", 
@@ -133,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isPhotoPage = path.includes("photography") || path.includes("photos");
 
         if (isPhotoPage) {
-            // RESTORED SLIDER LOGIC
+            // SLIDER
             const banner = document.createElement('div'); banner.className = 'banner';
             const slider = document.createElement('div'); slider.className = 'slider';
             const sliderPhotos = [
