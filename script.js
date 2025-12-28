@@ -147,13 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const path = window.location.pathname;
         const isPhotoPage = path.includes("photography") || path.includes("photos");
 
+        // 2. PHOTOGRAPHY PAGE (3D SLIDER + RECENT GRID)
         if (isPhotoPage) {
+            // --- A. THE 3D SLIDER (TOP) ---
             const banner = document.createElement('div');
             banner.className = 'banner';
             const slider = document.createElement('div');
             slider.className = 'slider';
             
-            const photos = [
+            // Slider Images (Keep your existing slider images here)
+            const sliderPhotos = [
                 "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
                 "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80",
                 "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80",
@@ -164,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80"
             ];
 
-            slider.style.setProperty('--quantity', photos.length);
+            slider.style.setProperty('--quantity', sliderPhotos.length);
 
-            photos.forEach((url, index) => {
+            sliderPhotos.forEach((url, index) => {
                 const item = document.createElement('div');
                 item.className = 'item';
                 item.style.setProperty('--position', index + 1);
@@ -178,38 +181,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
             banner.appendChild(slider);
             document.querySelector('.scroll-container').appendChild(banner);
-        } 
-        else {
-            const blogs = [
-                { title: "Digital Realms", desc: "Building worlds with code.", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80" },
-                { title: "Neon Dreams", desc: "The aesthetics of cyberpunk.", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80" },
-                { title: "Geometric Art", desc: "Mathematics in motion.", img: "https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=800&q=80" },
-                { title: "Fluid UI", desc: "Interfaces that breathe.", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" }
+
+            // --- B. RECENT UPLOADS GRID (BOTTOM) ---
+            
+            // Data for Recent Photos
+            const recentPhotos = [
+                { title: "Neon Rain", location: "Tokyo, Japan", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" },
+                { title: "Cyber Alley", location: "Seoul, Korea", img: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&q=80" },
+                { title: "Void Structure", location: "Berlin, Germany", img: "https://images.unsplash.com/photo-1486744360400-1b8a11ea8416?w=800&q=80" },
+                { title: "Night Market", location: "Hong Kong", img: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=800&q=80" },
+                { title: "Data Center", location: "San Francisco, USA", img: "https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=800&q=80" },
+                { title: "Lost Signal", location: "London, UK", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80" }
             ];
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'feed-container';
+            // Create Section
+            const recentSection = document.createElement('div');
+            recentSection.className = 'recent-section';
             
-            blogs.forEach((item, index) => {
-                contentDiv.innerHTML += `
-                    <article class="content-item">
-                        <div class="content-text">
-                            <span style="color:var(--accent-cyan); font-weight:bold;">0${index + 1}</span>
-                            <h2 class="item-title">${item.title}</h2>
-                            <p>${item.desc}</p>
-                        </div>
-                        <div class="content-visual"><img src="${item.img}"></div>
-                    </article>`;
-            });
-            document.querySelector('.scroll-container').appendChild(contentDiv);
+            const title = document.createElement('h2');
+            title.className = 'section-title';
+            title.innerText = "RECENT DROPS";
+            recentSection.appendChild(title);
 
-            setTimeout(() => {
-                if(typeof gsap !== 'undefined') {
-                    gsap.utils.toArray('.content-item').forEach(item => {
-                        gsap.to(item, { opacity: 1, duration: 1, scrollTrigger: { trigger: item, start: "top 85%" } });
-                    });
-                }
-            }, 100);
-        }
-    }
-});
+            const grid = document.createElement('div');
+            grid.className = 'recent-grid';
+
+            recentPhotos.forEach(photo => {
+                // We use onclick="this.classList.toggle('active')" for Mobile support
+                const card = document.createElement('div');
+                card.className = 'recent-card';
+                card.onclick = function() { this.classList.toggle('active'); }; // Toggle for mobile click
+                
+                card.innerHTML = `
+                    <img src="${photo.img}" class="recent-img">
+                    <div class="photo-info">
+                        <h3 class="photo-title">${photo.title}</h3>
+                        <div class="photo-loc">
+                            <i class="fa-solid fa-location-dot"></i> ${photo.location}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            recentSection.appendChild(grid);
+            document.querySelector('.scroll-container').appendChild(recentSection);
+        } 
