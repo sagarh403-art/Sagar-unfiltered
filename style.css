@@ -1,3 +1,4 @@
+/* VERSION 15.1 STABLE */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
@@ -8,372 +9,181 @@
     --text-dim: #A0A0A0;
     --accent-orange: #FF5722;
     --border: rgba(255, 255, 255, 0.1);
-    --glass: rgba(20, 20, 20, 0.8); /* Darker glass for better visibility */
+    --glass: rgba(20, 20, 20, 0.8);
 }
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Outfit', sans-serif; overflow-x: hidden; }
 
 /* =========================================
-   1. PRELOADER (Lando Norris Style)
+   1. PRELOADER & LOGO
    ========================================= */
 #preloader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--accent-orange); /* Solid Orange default */
-    z-index: 9999; /* Highest priority */
+    background: var(--accent-orange); z-index: 9999;
     display: flex; justify-content: center; align-items: center;
     transition: opacity 0.8s ease-in-out, visibility 0.8s;
 }
-
-/* Semi-Transparent Mode (For Blogs/Photos) */
-#preloader.transparent-mode {
-    background: rgba(255, 87, 34, 0.5); /* 50% Opacity Orange */
-    backdrop-filter: blur(10px);
-}
-
-.loader-content { position: relative; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; }
-
-/* The Logo inside Preloader */
-.loader-logo { width: 100px; height: auto; animation: pulseLogo 2s infinite; }
-
-/* The Drawing Lines Container */
-.line-box {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-}
-
-/* Line 1: Bottom Left -> Up & Right */
-.line-box::before {
-    content: ''; position: absolute; bottom: 0; left: 0;
-    width: 0; height: 2px; background: #fff;
-    animation: drawBottomLeft 1.5s ease-in-out forwards;
-}
-
-/* Line 2: Top Right -> Down & Left */
-.line-box::after {
-    content: ''; position: absolute; top: 0; right: 0;
-    width: 0; height: 2px; background: #fff;
-    animation: drawTopRight 1.5s ease-in-out forwards;
-}
-
-@keyframes drawBottomLeft {
-    0% { width: 0; height: 2px; box-shadow: inset 2px 0 0 #fff; }
-    50% { width: 100%; height: 2px; box-shadow: inset 2px 0 0 #fff; }
-    100% { width: 100%; height: 100%; box-shadow: inset 2px 0 0 #fff; background: transparent; }
-}
-
-@keyframes drawTopRight {
-    0% { width: 0; height: 2px; box-shadow: inset -2px 0 0 #fff; }
-    50% { width: 100%; height: 2px; box-shadow: inset -2px 0 0 #fff; }
-    100% { width: 100%; height: 100%; box-shadow: inset -2px 0 0 #fff; background: transparent; }
-}
-
-@keyframes pulseLogo { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } }
-
-/* Hide Preloader Class */
+#preloader.transparent-mode { background: rgba(255, 87, 34, 0.5); backdrop-filter: blur(10px); }
 .loaded { opacity: 0; visibility: hidden; pointer-events: none; }
 
+.loader-content { position: relative; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; }
+.loader-logo { width: 80px; height: auto; animation: pulseLogo 2s infinite; }
+.line-box { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.line-box::before { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: #fff; animation: drawBottomLeft 1.5s ease-in-out forwards; }
+.line-box::after { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 2px; background: #fff; animation: drawTopRight 1.5s ease-in-out forwards; }
+
+@keyframes drawBottomLeft { 0% { width: 0; height: 2px; box-shadow: inset 2px 0 0 #fff; } 50% { width: 100%; height: 2px; box-shadow: inset 2px 0 0 #fff; } 100% { width: 100%; height: 100%; box-shadow: inset 2px 0 0 #fff; background: transparent; } }
+@keyframes drawTopRight { 0% { width: 0; height: 2px; box-shadow: inset -2px 0 0 #fff; } 50% { width: 100%; height: 2px; box-shadow: inset -2px 0 0 #fff; } 100% { width: 100%; height: 100%; box-shadow: inset -2px 0 0 #fff; background: transparent; } }
+@keyframes pulseLogo { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } }
+
+/* Logos */
+.brand-logo { position: fixed; top: 25px; left: 25px; z-index: 1001; display: block; }
+.brand-logo img { height: 50px; width: auto; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
+.nav-logo-img { height: 35px; width: auto; display: none; }
+
 /* =========================================
-   2. UPDATED LOGO STYLES
+   2. NAVIGATION
    ========================================= */
-/* Mobile/Global Top-Left Logo */
-.brand-logo {
-    position: fixed; top: 25px; left: 25px;
-    z-index: 1001; display: block;
-}
-.brand-logo img {
-    height: 40px; /* Adjust based on your logo file */
-    width: auto;
-    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
-}
-
-/* Desktop Pill Logo (Replaces Text) */
-.nav-logo-img {
-    height: 30px; width: auto; display: none; /* Hidden initially */
-}
-.nav-pill.scrolled .nav-logo-img { display: block; }
-
-/* --- 3D CANVAS --- */
-#canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; opacity: 0.3; pointer-events: none; }
-
-/* --- DESKTOP NAVIGATION (Pill) --- */
 .nav-pill {
     position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 30px;
-    padding: 12px 40px;
+    display: flex; align-items: center; gap: 30px; padding: 12px 40px;
     background: var(--glass); backdrop-filter: blur(15px);
     border: 1px solid var(--border); border-radius: 50px;
     z-index: 1000; transition: 0.4s;
 }
-.nav-pill a {
-    color: var(--text-main); text-decoration: none; font-size: 0.9rem; font-weight: 500;
-    text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
-}
+.nav-pill a { color: var(--text-main); text-decoration: none; font-size: 0.9rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .nav-pill a:hover { color: var(--accent-orange); }
-
-/* Logo inside pill (Visible on scroll) */
-.nav-logo-text { font-family: 'Orbitron'; font-weight: 900; display: none; color: var(--text-main); }
-
 .nav-pill.scrolled { padding: 10px 30px; background: var(--accent-orange); border-color: var(--accent-orange); }
-.nav-pill.scrolled a:not(.nav-logo-text) { display: none; } /* Hide links on scroll */
-.nav-pill.scrolled .nav-logo-text { display: block; } /* Show Name on scroll */
+.nav-pill.scrolled a:not(.nav-logo-img) { display: none; }
+.nav-pill.scrolled .nav-logo-img { display: block; }
 
-
-/* --- MOBILE ELEMENTS --- */
-/* Top Left Logo (Mobile Only) */
-.mobile-brand {
-    display: none; /* Hidden on desktop */
-    position: fixed; top: 25px; left: 25px;
-    font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem;
-    color: var(--accent-orange); z-index: 1001; text-decoration: none;
-}
-
-/* Menu Button */
-.menu-btn { 
-    display: none; position: fixed; top: 25px; right: 25px; 
-    width: 45px; height: 45px; background: rgba(30,30,30,0.9); 
-    border: 1px solid var(--border); border-radius: 50%; cursor: pointer; 
-    z-index: 1001; justify-content: center; align-items: center; flex-direction: column; gap: 5px; 
-}
+.menu-btn { display: none; position: fixed; top: 25px; right: 25px; width: 45px; height: 45px; background: rgba(30,30,30,0.9); border: 1px solid var(--border); border-radius: 50%; cursor: pointer; z-index: 1001; justify-content: center; align-items: center; flex-direction: column; gap: 5px; }
 .menu-line { width: 22px; height: 2px; background: white; transition: 0.3s; }
 .menu-btn.open .menu-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .menu-btn.open .menu-line:nth-child(2) { opacity: 0; }
 .menu-btn.open .menu-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Overlay */
-.mobile-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg-dark); z-index: 999;
-    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 30px;
-    opacity: 0; pointer-events: none; transition: 0.4s;
-}
+.mobile-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 30px; opacity: 0; pointer-events: none; transition: 0.4s; }
 .mobile-overlay.active { opacity: 1; pointer-events: auto; }
 .mobile-link { font-family: 'Orbitron'; font-size: 2rem; color: white; text-decoration: none; }
 
+/* =========================================
+   3. HERO SECTION
+   ========================================= */
+#canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; opacity: 0.3; pointer-events: none; }
+.hero-section { position: relative; min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 5%; z-index: 10; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; max-width: 1400px; align-items: center; padding-top: 80px; }
 
-/* --- HERO SECTION --- */
-.hero-section {
-    position: relative; min-height: 100vh; width: 100%;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 5%; z-index: 10;
-}
-.hero-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    width: 100%; max-width: 1400px; align-items: center;
-    padding-top: 80px;
-}
-
-/* Left Side (Text) */
 .hero-left { z-index: 5; }
-.hero-title {
-    font-family: 'Orbitron'; font-size: 8vw; font-weight: 900;
-    line-height: 0.9; margin: 0 0 20px 0; color: white;
-}
-.hero-desc {
-    color: var(--text-dim); max-width: 450px; font-size: 1.1rem; line-height: 1.6;
-    margin-bottom: 40px; border-left: 3px solid var(--accent-orange); padding-left: 20px;
-}
+.hero-title { font-family: 'Orbitron'; font-size: 8vw; font-weight: 900; line-height: 0.9; margin: 0 0 20px 0; color: white; }
+.hero-desc { color: var(--text-dim); max-width: 450px; font-size: 1.1rem; line-height: 1.6; margin-bottom: 40px; border-left: 3px solid var(--accent-orange); padding-left: 20px; }
 
-/* Right Side (Image) */
-.hero-right {
-    position: relative; display: flex; justify-content: center; align-items: center;
-    height: 70vh;
-}
-.hero-img {
-    max-height: 90%; max-width: 100%; object-fit: contain;
-    filter: drop-shadow(0 0 30px rgba(255, 87, 34, 0.3));
-    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-}
-/* Orange Visor Line REMOVED based on your request */
-.visor-line { display: none; } 
+.hero-right { position: relative; display: flex; justify-content: center; align-items: center; height: 70vh; }
+.hero-img { max-height: 90%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 0 30px rgba(255, 87, 34, 0.3)); mask-image: linear-gradient(to bottom, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
+.visor-line { display: none; } /* Removed per request */
 
-/* Rotating Badge (Desktop) */
-.rotate-badge {
-    position: absolute; top: 100px; right: 0;
-    width: 120px; height: 120px;
-    border: 1px dashed var(--accent-orange); border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    animation: spin 10s linear infinite;
-}
-.rotate-text {
-    font-family: 'Orbitron'; font-size: 0.7rem; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 2px;
-}
+.rotate-badge { position: absolute; top: 100px; right: 0; width: 120px; height: 120px; border: 1px dashed var(--accent-orange); border-radius: 50%; display: flex; justify-content: center; align-items: center; animation: spin 10s linear infinite; }
+.rotate-text { font-family: 'Orbitron'; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* Socials (Desktop Position) */
-.hero-bottom-bar {
-    position: absolute; bottom: 40px; left: 5%; right: 5%;
-    display: flex; justify-content: space-between; align-items: center;
-    border-top: 1px solid var(--border); padding-top: 20px;
-}
+.hero-bottom-bar { position: absolute; bottom: 40px; left: 5%; right: 5%; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 20px; }
 .social-links { display: flex; gap: 25px; }
 .social-links a { color: var(--text-dim); font-size: 1.4rem; transition: 0.3s; }
 .social-links a:hover { color: var(--accent-orange); transform: translateY(-3px); }
 
-
-/* --- SECTIONS & CARDS --- */
-.section { padding: 100px 5%; position: relative; z-index: 20; background: var(--bg-dark); }
-.section-title { font-family: 'Orbitron'; font-size: 3rem; margin-bottom: 20px; }
-
-/* Fan Deck */
-/* --- FAN DECK (FIXED STABLE VERSION) --- */
+/* =========================================
+   4. FAN DECK (FIXED: Push + Pop)
+   ========================================= */
 .fan-section { padding: 100px 0; text-align: center; overflow: hidden; }
-.fan-container { 
-    position: relative; height: 400px; 
-    display: flex; justify-content: center; align-items: center; 
-    margin-top: 50px; 
-    perspective: 1000px; /* Adds 3D depth */
-}
+.fan-container { position: relative; height: 400px; display: flex; justify-content: center; align-items: center; margin-top: 50px; perspective: 1000px; }
 
 .fan-card {
-    position: absolute; 
-    width: 200px; height: 300px; 
-    border-radius: 15px;
-    background-size: cover; background-position: center;
-    border: 1px solid var(--border); 
+    position: absolute; width: 200px; height: 300px; border-radius: 15px;
+    background-size: cover; background-position: center; border: 1px solid var(--border); 
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    /* Smooth movement, instant Z-index change */
-    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s; 
-    transform-origin: bottom center;
-    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+    transform-origin: bottom center; cursor: pointer;
 }
 
-/* Base Positions (The Fan Shape) */
+/* Base Positions */
 .fan-card:nth-child(1) { transform: translateX(-160px) rotate(-15deg); z-index: 1; }
 .fan-card:nth-child(2) { transform: translateX(-80px) rotate(-7deg); z-index: 2; }
 .fan-card:nth-child(3) { transform: translateX(0px) rotate(0deg) translateY(-10px); z-index: 3; }
 .fan-card:nth-child(4) { transform: translateX(80px) rotate(7deg); z-index: 2; }
 .fan-card:nth-child(5) { transform: translateX(160px) rotate(15deg); z-index: 1; }
 
-/* HOVER STATE (Pop Up & Glow) */
-.fan-card:hover {
-    z-index: 100 !important; /* Forces it to the VERY FRONT */
-    box-shadow: 0 0 40px var(--accent-orange);
-    border-color: var(--accent-orange);
-}
+/* Hover: Pop Up & Glow */
+.fan-card:hover { z-index: 100 !important; transform: translateY(-80px) scale(1.15) rotate(0deg) !important; box-shadow: 0 0 40px var(--accent-orange); border-color: var(--accent-orange); }
 
-/* Specific Pop-Up Positions (Keeps them in their lanes) */
-.fan-card:nth-child(1):hover { transform: translateX(-160px) translateY(-80px) scale(1.15) rotate(0deg); }
-.fan-card:nth-child(2):hover { transform: translateX(-80px) translateY(-80px) scale(1.15) rotate(0deg); }
-.fan-card:nth-child(3):hover { transform: translateX(0px) translateY(-90px) scale(1.15) rotate(0deg); }
-.fan-card:nth-child(4):hover { transform: translateX(80px) translateY(-80px) scale(1.15) rotate(0deg); }
-.fan-card:nth-child(5):hover { transform: translateX(160px) translateY(-80px) scale(1.15) rotate(0deg); }
+/* Hover: Push Siblings */
+.fan-card:hover ~ .fan-card { transform: translateX(120px) !important; }
 
-/* Mobile Adjustments */
-@media (max-width: 900px) {
-    .fan-container { height: 350px; }
-    .fan-card { width: 120px; height: 180px; }
-    
-    /* Mobile Base Positions */
-    .fan-card:nth-child(1) { transform: translateX(-100px) rotate(-15deg); }
-    .fan-card:nth-child(2) { transform: translateX(-50px) rotate(-7deg); }
-    .fan-card:nth-child(3) { transform: translateX(0px) translateY(-10px); }
-    .fan-card:nth-child(4) { transform: translateX(50px) rotate(7deg); }
-    .fan-card:nth-child(5) { transform: translateX(100px) rotate(15deg); }
-    
-    /* Mobile Hover Positions */
-    .fan-card:nth-child(1):hover { transform: translateX(-100px) translateY(-40px) scale(1.1) rotate(0deg); }
-    .fan-card:nth-child(5):hover { transform: translateX(100px) translateY(-40px) scale(1.1) rotate(0deg); }
-}
-/* --- CONTENT GRIDS --- */
+/* =========================================
+   5. GRIDS & LIGHTBOX
+   ========================================= */
+.section { padding: 100px 5%; position: relative; z-index: 20; background: var(--bg-dark); }
+.section-title { font-family: 'Orbitron'; font-size: 3rem; margin-bottom: 20px; }
 .scroll-container { padding-top: 150px; min-height: 100vh; position: relative; z-index: 50; }
 .feed-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px; }
 
-/* Photo Grid with Hover Location */
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 10px; cursor: pointer; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(20%); }
-
-.location-tag {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: rgba(0,0,0,0.7); color: var(--accent-orange);
-    padding: 8px 20px; border-radius: 30px; font-family: 'Orbitron'; font-size: 0.9rem;
-    opacity: 0; transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: none; white-space: nowrap;
-}
 .gallery-item:hover img { transform: scale(1.1); filter: grayscale(0%); }
+
+.location-tag { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(0,0,0,0.7); color: var(--accent-orange); padding: 8px 20px; border-radius: 30px; font-family: 'Orbitron'; font-size: 0.9rem; opacity: 0; transition: 0.4s; pointer-events: none; white-space: nowrap; }
 .gallery-item:hover .location-tag { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* Blog Grid */
+/* Lightbox */
+.lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; pointer-events: none; transition: 0.3s; padding: 20px; }
+.lightbox.active { opacity: 1; visibility: visible; pointer-events: auto; }
+.lightbox img { max-width: 90%; max-height: 90%; border-radius: 5px; box-shadow: 0 0 50px rgba(0,0,0,0.5); transform: scale(0.9); transition: 0.3s; }
+.lightbox.active img { transform: scale(1); }
+.lightbox-close { position: absolute; top: 30px; right: 30px; font-size: 2rem; color: white; cursor: pointer; background: none; border: none; }
+
+/* Blogs */
 .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-.blog-card {
-    background: var(--bg-card); border-radius: 15px; overflow: hidden;
-    border: 1px solid var(--border); transition: 0.3s; cursor: pointer;
-    text-decoration: none; color: white; display: block;
-}
+.blog-card { background: var(--bg-card); border-radius: 15px; overflow: hidden; border: 1px solid var(--border); transition: 0.3s; cursor: pointer; text-decoration: none; color: white; display: block; }
 .blog-card:hover { transform: translateY(-10px); border-color: var(--accent-orange); }
 .blog-img { width: 100%; height: 200px; object-fit: cover; }
 .blog-content { padding: 20px; }
 .blog-title { font-family: 'Orbitron'; font-size: 1.2rem; margin-bottom: 10px; color: var(--accent-orange); }
 .blog-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
 
-
-/* --- MOBILE RESPONSIVE (Strict Fixes) --- */
+/* =========================================
+   6. MOBILE RESPONSIVE (Strict)
+   ========================================= */
 @media (max-width: 900px) {
-    /* Navigation */
     .nav-pill { display: none; }
     .menu-btn { display: flex; }
-    .mobile-brand { display: block; } /* Show Orange Logo */
-
-    /* Hero Section - Stacked Layout */
-    .hero-section {
-        flex-direction: column;
-        justify-content: flex-start;
-        padding-top: 80px;
-        height: auto;
-        min-height: 100vh;
-    }
-
-    .hero-grid {
-        display: flex; flex-direction: column;
-        width: 100%; padding-top: 0; gap: 0;
-    }
-
-    /* 1. Image on Top */
-    .hero-right {
-        order: 1; width: 100%; height: 35vh; 
-        margin-bottom: 10px;
-    }
-    .hero-img { 
-        max-height: 100%; width: auto; 
-    }
-
-    /* 2. Text in Middle */
-    .hero-left {
-        order: 2; width: 100%; text-align: center;
-        padding: 0 10px;
-    }
-    .hero-title {
-        font-size: 3.5rem; /* Smaller Font */
-        margin-bottom: 15px;
-    }
-    .hero-desc {
-        font-size: 1rem; margin: 0 auto 30px; 
-        border: none; padding: 0; max-width: 90%;
-    }
-
-    /* 3. Socials at Bottom */
-    .hero-bottom-bar {
-        position: static; order: 3;
-        width: 100%; border: none; padding: 20px 0 50px;
-        flex-direction: column; margin-top: 10px;
-    }
-    .hero-bottom-bar > div:first-child { display: none; } /* Hide 'Scroll' text */
     
-    .social-links { 
-        justify-content: center; gap: 30px; 
-    }
-    .social-links a { 
-        font-size: 1.5rem; 
-    }
-
-    /* Hide Desktop Elements */
+    .hero-section { flex-direction: column; justify-content: flex-start; padding-top: 80px; height: auto; min-height: 100vh; }
+    .hero-grid { display: flex; flex-direction: column; width: 100%; padding-top: 0; gap: 0; }
+    
+    .hero-right { order: 1; width: 100%; height: 35vh; margin-bottom: 10px; }
+    .hero-img { max-height: 100%; width: auto; }
+    
+    .hero-left { order: 2; width: 100%; text-align: center; padding: 0 10px; }
+    .hero-title { font-size: 3.5rem; margin-bottom: 15px; }
+    .hero-desc { font-size: 1rem; margin: 0 auto 30px; border: none; padding: 0; max-width: 90%; }
+    
+    .hero-bottom-bar { position: static; order: 3; width: 100%; border: none; padding: 20px 0 50px; flex-direction: column; margin-top: 10px; }
+    .hero-bottom-bar > div:first-child { display: none; }
+    .social-links { justify-content: center; gap: 30px; }
+    .social-links a { font-size: 1.5rem; }
+    
     .rotate-badge { display: none; }
 
-    /* Fan Deck Sizing */
+    /* Fan Deck Mobile */
     .fan-container { height: 350px; }
     .fan-card { width: 120px; height: 180px; }
     .fan-card:nth-child(1) { transform: translateX(-90px) rotate(-15deg); }
+    .fan-card:nth-child(2) { transform: translateX(-45px) rotate(-7deg); }
+    .fan-card:nth-child(3) { transform: translateX(0px) rotate(0deg); }
+    .fan-card:nth-child(4) { transform: translateX(45px) rotate(7deg); }
     .fan-card:nth-child(5) { transform: translateX(90px) rotate(15deg); }
-    }
+    
+    .fan-card:hover { transform: translateY(-40px) scale(1.1) rotate(0deg) !important; }
+    .fan-card:hover ~ .fan-card { transform: translateX(70px) !important; }
+}
