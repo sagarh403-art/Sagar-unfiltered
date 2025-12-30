@@ -218,23 +218,65 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 .section-title { font-family: 'Orbitron'; font-size: 3rem; margin-bottom: 20px; }
 
 /* Fan Deck */
+/* --- FAN DECK (FIXED STABLE VERSION) --- */
 .fan-section { padding: 100px 0; text-align: center; overflow: hidden; }
-.fan-container { position: relative; height: 400px; display: flex; justify-content: center; align-items: center; margin-top: 50px; }
-.fan-card {
-    position: absolute; width: 200px; height: 300px; border-radius: 15px;
-    background: #244855; background-size: cover; background-position: center;
-    border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; transform-origin: bottom center;
+.fan-container { 
+    position: relative; height: 400px; 
+    display: flex; justify-content: center; align-items: center; 
+    margin-top: 50px; 
+    perspective: 1000px; /* Adds 3D depth */
 }
-.fan-card:hover { z-index: 50; transform: translateY(-50px) scale(1.1) rotate(0deg) !important; border-color: var(--accent-orange); box-shadow: 0 0 30px var(--accent-orange); }
-.fan-card:hover ~ .fan-card { transform: translateX(100px) !important; }
 
+.fan-card {
+    position: absolute; 
+    width: 200px; height: 300px; 
+    border-radius: 15px;
+    background-size: cover; background-position: center;
+    border: 1px solid var(--border); 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    /* Smooth movement, instant Z-index change */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), z-index 0s; 
+    transform-origin: bottom center;
+    cursor: pointer;
+}
+
+/* Base Positions (The Fan Shape) */
 .fan-card:nth-child(1) { transform: translateX(-160px) rotate(-15deg); z-index: 1; }
 .fan-card:nth-child(2) { transform: translateX(-80px) rotate(-7deg); z-index: 2; }
 .fan-card:nth-child(3) { transform: translateX(0px) rotate(0deg) translateY(-10px); z-index: 3; }
 .fan-card:nth-child(4) { transform: translateX(80px) rotate(7deg); z-index: 2; }
 .fan-card:nth-child(5) { transform: translateX(160px) rotate(15deg); z-index: 1; }
 
+/* HOVER STATE (Pop Up & Glow) */
+.fan-card:hover {
+    z-index: 100 !important; /* Forces it to the VERY FRONT */
+    box-shadow: 0 0 40px var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+
+/* Specific Pop-Up Positions (Keeps them in their lanes) */
+.fan-card:nth-child(1):hover { transform: translateX(-160px) translateY(-80px) scale(1.15) rotate(0deg); }
+.fan-card:nth-child(2):hover { transform: translateX(-80px) translateY(-80px) scale(1.15) rotate(0deg); }
+.fan-card:nth-child(3):hover { transform: translateX(0px) translateY(-90px) scale(1.15) rotate(0deg); }
+.fan-card:nth-child(4):hover { transform: translateX(80px) translateY(-80px) scale(1.15) rotate(0deg); }
+.fan-card:nth-child(5):hover { transform: translateX(160px) translateY(-80px) scale(1.15) rotate(0deg); }
+
+/* Mobile Adjustments */
+@media (max-width: 900px) {
+    .fan-container { height: 350px; }
+    .fan-card { width: 120px; height: 180px; }
+    
+    /* Mobile Base Positions */
+    .fan-card:nth-child(1) { transform: translateX(-100px) rotate(-15deg); }
+    .fan-card:nth-child(2) { transform: translateX(-50px) rotate(-7deg); }
+    .fan-card:nth-child(3) { transform: translateX(0px) translateY(-10px); }
+    .fan-card:nth-child(4) { transform: translateX(50px) rotate(7deg); }
+    .fan-card:nth-child(5) { transform: translateX(100px) rotate(15deg); }
+    
+    /* Mobile Hover Positions */
+    .fan-card:nth-child(1):hover { transform: translateX(-100px) translateY(-40px) scale(1.1) rotate(0deg); }
+    .fan-card:nth-child(5):hover { transform: translateX(100px) translateY(-40px) scale(1.1) rotate(0deg); }
+}
 /* --- CONTENT GRIDS --- */
 .scroll-container { padding-top: 150px; min-height: 100vh; position: relative; z-index: 50; }
 .feed-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px; }
