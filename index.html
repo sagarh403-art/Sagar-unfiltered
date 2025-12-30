@@ -3,95 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sagar | Future Vision</title>
-    <link rel="stylesheet" href="style.css?v=13.3">
+    <title>SAGAR | Futuristic Portfolio</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="home-mode">
+<body>
 
-    <div id="preloader"><div style="font-family:'Orbitron'; font-size:50px; color:#FF4D30;">SAGAR.</div></div>
-
-    <div id="canvas-container"></div>
-
-    <a href="index.html" class="fixed-logo">SAGAR.</a>
-    
-    <button id="menu-toggle-btn" class="menu-btn">
-        <span class="menu-line"></span>
-        <span class="menu-line"></span>
-    </button>
-    
-    <div class="menu-overlay" id="menu-overlay">
-        <div class="menu-links">
-            <a href="index.html" class="menu-item">HOME</a>
-            <a href="blogs.html" class="menu-item">BLOGS</a>
-            <a href="photography.html" class="menu-item">PHOTOS</a>
-            <a href="index.html#about" class="menu-item">ABOUT</a>
-            <a href="#socials" class="menu-item">CONTACT</a>
+    <nav class="navbar">
+        <a href="#hero" class="logo">SAGAR.</a>
+        <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#photography">Photography</a>
+            <a href="#blogs">Blogs</a>
+            <a href="#contact">Contact</a>
         </div>
-    </div>
+        <div class="menu-btn"><i class="fa-solid fa-bars"></i></div>
+    </nav>
 
-    <header class="hero-section">
+    <section id="hero" class="hero-section">
         <div class="hero-content">
-            <div class="hero-text-side">
-                <h1 class="hero-main-title">SAGAR</h1>
-                <div class="hero-desc">
-                    Innovate. Create. Transform.<br>
-                    Step into the future with cutting-edge digital art and code.
-                </div>
-                <div class="hero-actions">
-                    <a href="#fan-gallery" class="btn-glass primary">DISCOVER</a>
-                    <a href="#socials" class="btn-glass"><i class="fa-solid fa-envelope"></i> CONNECT</a>
-                </div>
-            </div>
-            <div class="hero-img-side">
-                <div class="orbit-circle orbit-1"></div>
-                <div class="orbit-circle orbit-2"></div>
-                <img src="./assets/Sagar3d.png">
+            <h1 class="hero-title">NEON<span class="highlight">VISION</span></h1>
+            <p class="hero-subtitle">We Innovate. We Create. We Transform. Step into the future with cutting-edge digital experiences.</p>
+            <div class="hero-buttons">
+                <a href="#about" class="btn btn-primary">Discover <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="#contact" class="btn btn-secondary"><i class="fa-brands fa-discord"></i> Connect With Us</a>
             </div>
         </div>
-    </header>
-
-    <section class="fan-section" id="fan-gallery">
-        <h2 style="font-family:'Orbitron', sans-serif; color:var(--text-cream); margin-bottom:50px;">LATEST VISUALS</h2>
-        <div class="fan-container">
-            <div class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&q=80');" onclick="window.location.href='photography.html'"></div>
-            <div class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80');" onclick="window.location.href='photography.html'"></div>
-            <div class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=600&q=80');" onclick="window.location.href='photography.html'"></div>
-            <div class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80');" onclick="window.location.href='photography.html'"></div>
-            <div class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1558655146-d09347e0c766?w=600&q=80');" onclick="window.location.href='photography.html'"></div>
+        <div class="hero-image-container">
+            <img src="https://images.unsplash.com/photo-1626285861696-9f0bf5a49c6d?q=80&w=800" alt="Futuristic Visor Face" class="hero-image">
+            <div class="glowing-ring"></div>
         </div>
-        <p style="margin-top:60px; color:var(--accent-blue);">HOVER TO EXPLORE • CLICK TO VIEW ALL</p>
     </section>
 
-    <main class="scroll-container">
-        
-        <section class="panel center" id="about">
-            <div class="soft-card">
-                <h2>THE CREATOR</h2>
-                <p>I design digital universes.<br><strong>Art</strong> + <strong>Code</strong> + <strong>Soul</strong>.</p>
-                <p style="font-size: 1rem; margin-top: 20px; color: #90AEAD;">
-                    Passionate about merging aesthetics with technology. 
-                    Creating immersive 3D web environments and visual storytelling.
-                </p>
-            </div>
-        </section>
-        
-        <section class="panel center" id="socials">
-            <div class="soft-card">
-                <h2>CONNECT</h2>
-                <div class="social-grid">
-                    <a href="https://twitter.com" target="_blank" class="social-pill"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="https://linkedin.com" target="_blank" class="social-pill"><i class="fa-brands fa-linkedin-in"></i></a>
-                    <a href="https://youtube.com" target="_blank" class="social-pill"><i class="fa-brands fa-youtube"></i></a>
-                    <a href="mailto:yourmail@gmail.com" class="social-pill"><i class="fa-solid fa-envelope"></i></a>
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">CRAFTING MEANINGFUL<br>DIGITAL EXPERIENCES</h2>
+            <div class="about-grid">
+                <div class="about-text">
+                    <p>I am a visionary designer and developer focused on creating immersive digital worlds. My work blends striking aesthetics with seamless functionality, ensuring every project leaves a lasting impact.</p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3>5+</h3>
+                            <p>Years Experience</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>100+</h3>
+                            <p>Projects Done</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&q=80" alt="Abstract Art" class="about-img">
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <section id="photography" class="section dark-section">
+        <div class="container">
+            <h2 class="section-title">VISUAL<br><span class="highlight">SPIRAL</span></h2>
+            <p class="section-subtitle">Explore the world through my lens in a new dimension.</p>
+        </div>
+        <div id="spiral-canvas-container"></div>
+    </section>
+
+    <section id="blogs" class="section">
+        <div class="container">
+            <h2 class="section-title">LATEST<br>INSIGHTS</h2>
+            <div class="blogs-grid">
+                <a href="#" class="blog-card">
+                    <div class="blog-image">
+                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80" alt="Blog 1">
+                    </div>
+                    <div class="blog-content">
+                        <h3>The Future of UI Design</h3>
+                        <p>Exploring neon aesthetics and dark mode interfaces.</p>
+                        <span class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </a>
+                <a href="#" class="blog-card">
+                    <div class="blog-image">
+                        <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80" alt="Blog 2">
+                    </div>
+                    <div class="blog-content">
+                        <h3>Cyberpunk in Web Dev</h3>
+                        <p>How to implement glitch effects and futuristic layouts.</p>
+                        <span class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </a>
+                 <a href="#" class="blog-card">
+                    <div class="blog-image">
+                        <img src="https://images.unsplash.com/photo-1535378437327-1e827252fce8?w=600&q=80" alt="Blog 3">
+                    </div>
+                    <div class="blog-content">
+                        <h3>A.I. and Creativity</h3>
+                        <p>Can machines truly create art? A deep dive.</p>
+                        <span class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section fan-deck-section">
+        <div class="container">
+            <h2 class="section-title">CONNECT<br><span class="highlight">WITH ME</span></h2>
+            <p class="section-subtitle" style="margin-bottom: 60px;">Choose your platform and let's create something together.</p>
+            
+            <div class="fan-deck-container">
+                <a href="https://instagram.com" target="_blank" class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80');">
+                    <div class="card-overlay">
+                        <i class="fa-brands fa-instagram"></i>
+                        <span>Instagram</span>
+                    </div>
+                </a>
+                <a href="https://twitter.com" target="_blank" class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1517404215738-15263e9f9178?w=400&q=80');">
+                    <div class="card-overlay">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>Twitter / X</span>
+                    </div>
+                </a>
+                <a href="https://linkedin.com" target="_blank" class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1558655146-d09347e0c766?w=400&q=80');">
+                    <div class="card-overlay">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                        <span>LinkedIn</span>
+                    </div>
+                </a>
+                <a href="mailto:your@email.com" class="fan-card" style="background-image: url('https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=400&q=80');">
+                    <div class="card-overlay">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>Email</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 SAGAR. All rights reserved. Inspired by the Future.</p>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="./script.js?v=13.3"></script>
+    <script src="script.js"></script>
 </body>
 </html>
