@@ -1,30 +1,31 @@
-// VERSION 15.1 STABLE
-window.onload = () => {
-
-    // --- 0. PRELOADER ---
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // --- 0. PRELOADER (Force Open Logic) ---
     const preloader = document.getElementById('preloader');
     if (preloader) {
-        setTimeout(() => { preloader.classList.add('loaded'); }, 2000); 
+        // Normal fade out after 2 seconds
+        setTimeout(() => {
+            preloader.classList.add('loaded');
+        }, 2000);
+
+        // SAFETY BACKUP: Force remove after 5 seconds (in case of lag)
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 5000);
     }
 
-    // ==========================================
-    // 1. MASTER PHOTO DATABASE
-    // ==========================================
-    // Add photos here. Top 5 go to Fan Deck.
+    // --- 1. MASTER PHOTO DATABASE ---
     const myPhotos = [
-        { src: "./photos/IMG_20251101_063329.jpg", location: "Tokyo, Japan", desc: "Neon lights reflecting on wet pavement." },
-        { src: "./photos/IMG_20251101_070352.jpg", location: "Kyoto Streets", desc: "Traditional vibes in a modern world." },
-        { src: "./photos/IMG_20250913_192716.jpg", location: "Times Square, NYC", desc: "The city that never sleeps." },
-        { src: "./photos/IMG_20250914_114126.jpg", location: "Bengaluru, India", desc: "Tech hub aesthetics." },
-        { src: "./photos/IMG_20250914_094000.png", location: "London Eye", desc: "A view from the top." },
+        { src: "./assets/photo1.jpg", location: "Tokyo, Japan", desc: "Neon lights reflecting on wet pavement." },
+        { src: "./assets/photo2.jpg", location: "Kyoto Streets", desc: "Traditional vibes in a modern world." },
+        { src: "./assets/photo3.jpg", location: "Times Square, NYC", desc: "The city that never sleeps." },
+        { src: "./assets/photo4.jpg", location: "Bengaluru, India", desc: "Tech hub aesthetics." },
+        { src: "./assets/photo5.jpg", location: "London Eye", desc: "A view from the top." }
     ];
 
+    // --- 2. CONTENT GENERATORS ---
 
-    // ==========================================
-    // 2. CONTENT GENERATORS
-    // ==========================================
-
-    // A. Fan Deck (Home Page)
+    // A. Fan Deck
     const fanContainer = document.querySelector('.fan-container');
     if (fanContainer) {
         fanContainer.innerHTML = ''; 
@@ -38,10 +39,9 @@ window.onload = () => {
         });
     }
 
-    // B. Photo Grid & Lightbox (Photos Page)
+    // B. Photo Grid & Lightbox
     const photoGrid = document.getElementById('photo-grid');
     if (photoGrid) {
-        // Create Lightbox
         let lightbox = document.getElementById('lightbox');
         if (!lightbox) {
             lightbox = document.createElement('div');
@@ -55,7 +55,6 @@ window.onload = () => {
         }
         const lightboxImg = lightbox.querySelector('img');
 
-        // Populate Grid
         myPhotos.forEach(photo => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
@@ -71,50 +70,22 @@ window.onload = () => {
     // C. Blogs
     const blogGrid = document.getElementById('blog-grid');
     if (blogGrid) {
-            // --- C. Generate Blogs (Blogs Page) ---
-    const blogGrid = document.getElementById('blog-grid');
-    if (blogGrid) {
-        
         const blogs = [
             { 
                 title: "Hello World: Welcome to My Digital Garden", 
                 desc: "Stepping into the digital universe. A first look at my new journey.", 
-                // I put a placeholder image below. 
-                // To use your real blog photo: Right-click the photo on your blog -> Copy Image Address -> Paste here.
-                img: "https://sagarh-helloworld.blogspot.com/2025/12/hello-world-welcome-to-my-digital-garden.html", 
+                img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80", 
                 link: "https://sagarh-helloworld.blogspot.com/2025/12/hello-world-welcome-to-my-digital-garden.html" 
-            },
-            // You can add a second post here later:
-            /*
-            { 
-                title: "My Second Post", 
-                desc: "Description...", 
-                img: "LINK_TO_IMAGE", 
-                link: "LINK_TO_BLOG_POST" 
-            },
-            */
+            }
         ];
-
         blogs.forEach(post => {
-            const card = document.createElement('a'); 
-            card.href = post.link; 
-            card.target = "_blank"; 
-            card.className = 'blog-card';
-            card.innerHTML = `
-                <img src="${post.img}" class="blog-img" alt="${post.title}">
-                <div class="blog-content">
-                    <h3 class="blog-title">${post.title}</h3>
-                    <p class="blog-desc">${post.desc}</p>
-                </div>
-            `;
+            const card = document.createElement('a'); card.href = post.link; card.target = "_blank"; card.className = 'blog-card';
+            card.innerHTML = `<img src="${post.img}" class="blog-img"><div class="blog-content"><h3 class="blog-title">${post.title}</h3><p class="blog-desc">${post.desc}</p></div>`;
             blogGrid.appendChild(card);
         });
     }
 
-
-    // ==========================================
-    // 3. UI LOGIC
-    // ==========================================
+    // --- 3. UI LOGIC ---
     const navPill = document.getElementById('desktop-nav');
     if(navPill) window.addEventListener('scroll', () => navPill.classList.toggle('scrolled', window.scrollY > 50));
 
@@ -125,11 +96,9 @@ window.onload = () => {
         document.querySelectorAll('.mobile-link').forEach(link => link.addEventListener('click', () => { mobileToggle.classList.remove('open'); mobileOverlay.classList.remove('active'); }));
     }
 
-    // ==========================================
-    // 4. THREE.JS
-    // ==========================================
+    // --- 4. THREE.JS ---
     const canvasContainer = document.getElementById('canvas-container');
-    if (canvasContainer) {
+    if (canvasContainer && typeof THREE !== 'undefined') {
         const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x121212, 0.02);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -148,9 +117,7 @@ window.onload = () => {
         window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
     }
 
-    // ==========================================
-    // 5. GSAP
-    // ==========================================
+    // --- 5. GSAP ---
     if (typeof gsap !== 'undefined' && document.querySelector('.hero-title')) {
         gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.2 });
         gsap.from(".hero-desc", { y: 30, opacity: 0, duration: 1, ease: "power3.out", delay: 0.4 });
@@ -158,4 +125,4 @@ window.onload = () => {
         gsap.from(".hero-bottom-bar", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 1 });
         gsap.from(".fan-card", { scrollTrigger: { trigger: ".fan-section", start: "top 80%" }, y: 100, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out" });
     }
-};
+});
