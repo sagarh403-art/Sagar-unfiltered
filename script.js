@@ -18,27 +18,27 @@ window.onload = () => {
     // The top 5 photos automatically go to the Fan Deck.
     const myPhotos = [
         { 
-            src: "./assets/photo1.jpg", 
+            src: "./photos/IMG_20251101_070352.jpg", 
             location: "Tokyo, Japan", 
             desc: "Neon lights reflecting on wet pavement." 
         },
         { 
-            src: "./assets/photo2.jpg", 
+            src: "./photos/IMG_20251101_063329.jpg", 
             location: "Kyoto Streets", 
             desc: "Traditional vibes in a modern world." 
         },
         { 
-            src: "./assets/photo3.jpg", 
+            src: "./photos/IMG_20250914_114126.jpg", 
             location: "Times Square, NYC", 
             desc: "The city that never sleeps." 
         },
         { 
-            src: "./assets/photo4.jpg", 
+            src: "./photos/IMG_20250914_094000.png", 
             location: "Bengaluru, India", 
             desc: "Tech hub aesthetics." 
         },
         { 
-            src: "./assets/photo5.jpg", 
+            src: "./photos/IMG_20250913_192716.jpg", 
             location: "London Eye", 
             desc: "A view from the top." 
         },
