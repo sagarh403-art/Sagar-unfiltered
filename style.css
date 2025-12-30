@@ -34,7 +34,7 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 .loader-content { position: relative; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; }
 
 /* The Logo inside Preloader */
-.loader-logo { width: 60px; height: auto; animation: pulseLogo 2s infinite; }
+.loader-logo { width: 100px; height: auto; animation: pulseLogo 2s infinite; }
 
 /* The Drawing Lines Container */
 .line-box {
