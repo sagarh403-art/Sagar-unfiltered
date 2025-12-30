@@ -8,7 +8,7 @@
     --text-dim: #A0A0A0;
     --accent-orange: #FF5722;
     --border: rgba(255, 255, 255, 0.1);
-    --glass: rgba(20, 20, 20, 0.6);
+    --glass: rgba(20, 20, 20, 0.8); /* Darker glass for better visibility */
 }
 
 * { box-sizing: border-box; }
@@ -17,7 +17,7 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 /* --- 3D CANVAS --- */
 #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; opacity: 0.3; pointer-events: none; }
 
-/* --- NAVIGATION (Frosted Pill) --- */
+/* --- DESKTOP NAVIGATION (Pill) --- */
 .nav-pill {
     position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
     display: flex; align-items: center; gap: 30px;
@@ -31,13 +31,25 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
     text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
 }
 .nav-pill a:hover { color: var(--accent-orange); }
+
+/* Logo inside pill (Visible on scroll) */
 .nav-logo-text { font-family: 'Orbitron'; font-weight: 900; display: none; color: var(--text-main); }
 
 .nav-pill.scrolled { padding: 10px 30px; background: var(--accent-orange); border-color: var(--accent-orange); }
-.nav-pill.scrolled a:not(.nav-logo-text) { display: none; }
-.nav-pill.scrolled .nav-logo-text { display: block; }
+.nav-pill.scrolled a:not(.nav-logo-text) { display: none; } /* Hide links on scroll */
+.nav-pill.scrolled .nav-logo-text { display: block; } /* Show Name on scroll */
 
-/* Mobile Menu Button */
+
+/* --- MOBILE ELEMENTS --- */
+/* Top Left Logo (Mobile Only) */
+.mobile-brand {
+    display: none; /* Hidden on desktop */
+    position: fixed; top: 25px; left: 25px;
+    font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem;
+    color: var(--accent-orange); z-index: 1001; text-decoration: none;
+}
+
+/* Menu Button */
 .menu-btn { 
     display: none; position: fixed; top: 25px; right: 25px; 
     width: 45px; height: 45px; background: rgba(30,30,30,0.9); 
@@ -49,7 +61,7 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 .menu-btn.open .menu-line:nth-child(2) { opacity: 0; }
 .menu-btn.open .menu-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Mobile Overlay */
+/* Overlay */
 .mobile-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--bg-dark); z-index: 999;
@@ -94,13 +106,10 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
     mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
-.visor-line {
-    position: absolute; top: 35%; width: 120%; height: 2px;
-    background: var(--accent-orange); box-shadow: 0 0 15px var(--accent-orange);
-    opacity: 0.7; z-index: 6;
-}
+/* Orange Visor Line REMOVED based on your request */
+.visor-line { display: none; } 
 
-/* Rotating Badge */
+/* Rotating Badge (Desktop) */
 .rotate-badge {
     position: absolute; top: 100px; right: 0;
     width: 120px; height: 120px;
@@ -114,7 +123,7 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* Bottom Bar (Socials) */
+/* Socials (Desktop Position) */
 .hero-bottom-bar {
     position: absolute; bottom: 40px; left: 5%; right: 5%;
     display: flex; justify-content: space-between; align-items: center;
@@ -151,17 +160,16 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 .scroll-container { padding-top: 150px; min-height: 100vh; position: relative; z-index: 50; }
 .feed-container { max-width: 1200px; margin: 0 auto; padding: 0 20px 100px; }
 
-/* Photo Grid */
+/* Photo Grid with Hover Location */
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
 .gallery-item { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 10px; cursor: pointer; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; filter: grayscale(20%); }
 
-/* Photography Hover Effect */
 .location-tag {
     position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: rgba(0,0,0,0.7); color: var(--accent-orange);
     padding: 8px 20px; border-radius: 30px; font-family: 'Orbitron'; font-size: 0.9rem;
-    opacity: 0; transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: none;
+    opacity: 0; transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: none; white-space: nowrap;
 }
 .gallery-item:hover img { transform: scale(1.1); filter: grayscale(0%); }
 .gallery-item:hover .location-tag { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -180,94 +188,71 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 .blog-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
 
 
-/* --- MOBILE RESPONSIVE (Strictly Fixed Layout) --- */
+/* --- MOBILE RESPONSIVE (Strict Fixes) --- */
 @media (max-width: 900px) {
-    /* Hide Desktop Nav */
+    /* Navigation */
     .nav-pill { display: none; }
     .menu-btn { display: flex; }
+    .mobile-brand { display: block; } /* Show Orange Logo */
 
-    /* Force Flex Column for Hero to stack perfectly */
+    /* Hero Section - Stacked Layout */
     .hero-section {
         flex-direction: column;
-        justify-content: center;
-        padding-top: 80px; /* Leave space for menu */
+        justify-content: flex-start;
+        padding-top: 80px;
         height: auto;
         min-height: 100vh;
     }
 
-    /* 1. Reset Grid to Flex Column */
     .hero-grid {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 20px;
-        padding-top: 0;
+        display: flex; flex-direction: column;
+        width: 100%; padding-top: 0; gap: 0;
     }
 
-    /* 2. Image First (Centered, No Line) */
+    /* 1. Image on Top */
     .hero-right {
-        order: 1;
-        width: 100%;
-        height: 250px; /* Fixed height to keep it contained */
-        margin-bottom: 20px;
-    }
-    .hero-img {
-        max-height: 100%;
-        max-width: 80%;
-    }
-    .visor-line {
-        display: none !important; /* Force hide orange line */
-    }
-
-    /* 3. Text Second (Centered, Small) */
-    .hero-left {
-        order: 2;
-        width: 100%;
-        text-align: center;
-    }
-    .hero-title {
-        font-size: 3rem; /* Small font size as requested */
+        order: 1; width: 100%; height: 35vh; 
         margin-bottom: 10px;
     }
+    .hero-img { 
+        max-height: 100%; width: auto; 
+    }
+
+    /* 2. Text in Middle */
+    .hero-left {
+        order: 2; width: 100%; text-align: center;
+        padding: 0 10px;
+    }
+    .hero-title {
+        font-size: 3.5rem; /* Smaller Font */
+        margin-bottom: 15px;
+    }
     .hero-desc {
-        font-size: 1rem;
-        margin: 0 auto;
-        border: none;
-        padding: 0;
-        max-width: 90%;
+        font-size: 1rem; margin: 0 auto 30px; 
+        border: none; padding: 0; max-width: 90%;
     }
 
-    /* 4. Socials Third (Below Tagline) */
-    /* We move the bottom bar into the flex flow */
+    /* 3. Socials at Bottom */
     .hero-bottom-bar {
-        position: static; /* No longer absolute */
-        order: 3;
-        width: 100%;
-        border: none;
-        padding: 20px 0;
-        margin-top: 10px;
-        flex-direction: column;
+        position: static; order: 3;
+        width: 100%; border: none; padding: 20px 0 50px;
+        flex-direction: column; margin-top: 10px;
     }
+    .hero-bottom-bar > div:first-child { display: none; } /* Hide 'Scroll' text */
     
-    /* Hide the "Scroll to explore" text on mobile */
-    .hero-bottom-bar > div:first-child {
-        display: none;
+    .social-links { 
+        justify-content: center; gap: 30px; 
+    }
+    .social-links a { 
+        font-size: 1.5rem; 
     }
 
-    .social-links {
-        justify-content: center;
-        gap: 30px;
-    }
-    .social-links a {
-        font-size: 1.5rem; /* Larger touch targets */
-    }
-    
-    /* Hide other desktop decorations */
+    /* Hide Desktop Elements */
     .rotate-badge { display: none; }
-    
-    /* Fan Deck Mobile Sizing */
+
+    /* Fan Deck Sizing */
     .fan-container { height: 350px; }
     .fan-card { width: 120px; height: 180px; }
     .fan-card:nth-child(1) { transform: translateX(-90px) rotate(-15deg); }
     .fan-card:nth-child(5) { transform: translateX(90px) rotate(15deg); }
-}
+    }
