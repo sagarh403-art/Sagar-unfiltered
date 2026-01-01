@@ -98,8 +98,8 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
 .hero-title { font-family: 'Orbitron'; font-size: 8vw; font-weight: 900; line-height: 0.9; margin: 0 0 20px 0; color: white; }
 .hero-desc { color: var(--text-dim); max-width: 450px; font-size: 1.1rem; line-height: 1.6; margin-bottom: 40px; border-left: 3px solid var(--accent-orange); padding-left: 20px; }
 
-.hero-right { position: relative; display: flex; justify-content: center; align-items: center; height: 70vh; }
-.hero-img { max-height: 90%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 0 30px rgba(255, 87, 34, 0.3)); mask-image: linear-gradient(to bottom, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
+.hero-right { position: relative; display: flex; justify-content: center; align-items: center; height: 85vh; }
+.hero-img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 0 30px rgba(255, 87, 34, 0.3)); mask-image: linear-gradient(to bottom, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
 .visor-line { display: none; }
 
 .rotate-badge { position: absolute; top: 100px; right: 0; width: 120px; height: 120px; border: 1px dashed var(--accent-orange); border-radius: 50%; display: flex; justify-content: center; align-items: center; animation: spin 10s linear infinite; }
@@ -167,7 +167,7 @@ body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-fami
     .hero-section { flex-direction: column; justify-content: flex-start; padding-top: 80px; height: auto; min-height: 100vh; }
     .hero-grid { display: flex; flex-direction: column; width: 100%; padding-top: 0; gap: 0; }
     
-    .hero-right { order: 1; width: 100%; height: 35vh; margin-bottom: 10px; }
+    .hero-right { order: 1; width: 100%; height: 55vh; margin-bottom: 20px; }
     .hero-img { max-height: 100%; width: auto; }
     
     .hero-left { order: 2; width: 100%; text-align: center; padding: 0 10px; }
