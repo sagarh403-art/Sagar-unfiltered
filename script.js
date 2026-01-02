@@ -90,14 +90,8 @@ window.onload = () => {
                 img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiINy3CFoqB8-qszqrt7BIVmwzSjZEkfkev-w3JOgfK0cn-UH7gAm4OiDz3n8cd014WcwwWvYKcs-8pa2YjftLjGvAiWir-19IfT5sJkJndYvHwvGdUStOGPji9QD7BPzbJ20wL-kaUeEbrV_kmJI8GErOV0-up6jf-CP50bfkgyz9FYOnnCxU8-G8dHDo/s1326/1000049897.jpg", 
                 link: "https://sagarunfiltered-tech.blogspot.com/2026/01/why-are-electronics-getting-so.html?m=1" 
             },
-            /*
-            { 
-                title: "My Second Blog Post", 
-                desc: "A short summary of what this post is about.", 
-                img: "https://blogger.googleusercontent.com/img/a/...", 
-                link: "https://your-blog.blogspot.com/..." 
-            },
-            */
+
+
         ];
 
         blogs.forEach(post => {
